@@ -45,12 +45,12 @@ CPUS_RNA = 20
 
 ####### Reference datasets #######
 GENOME4STAR = config["genome4star"]
-GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
+#GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
 GENOME4PHIX = config["genome4phiX"]
 KRAKEN_DB = config["krakenDB"]
-KRAKEN_DB_FILENAMES = extractFilenames(KRAKEN_DB.keys(),".tgz")
+#KRAKEN_DB_FILENAMES = extractFilenames(KRAKEN_DB.keys(),".tgz")
 rRNA = config["rRNAref"]
-rRNA_FILES = list(rRNA.keys())
+#rRNA_FILES = list(rRNA.keys())
 
 ####### Rules #######
 rule all:
