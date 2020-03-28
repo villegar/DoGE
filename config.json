@@ -13,13 +13,11 @@
             "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M22/gencode.vM22.annotation.gtf.gz"
     },
 
-    "_comment" :
-        "Below READS section shows the configuration for a directory containing reads in the format:
-	       /{PATH}/SRR{LIBRARY}_1.fastq",
-    "reads":
-    {
-        "extension": "fastq.gz",
-        "path": "/gpfs/scratch/Classes/bio792/reads",
+    "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
+    "reads": {
+		    "extension": "fastq",
+        "forward_read_id": "1",
+        "path": "/gpfs/scratch/Classes/stat736/walnutreads",
         "prefix": "SRR"
     }
 }
