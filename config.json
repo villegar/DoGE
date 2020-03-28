@@ -5,12 +5,12 @@
             "ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/PhiX/Illumina/RTA/PhiX_Illumina_RTA.tar.gz"
     },
 
-    "genome4star":
+    "genome":
     {
-        "GRCm38.primary_assembly.genome.fa.gz":
-            "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M22/GRCm38.primary_assembly.genome.fa.gz",
-        "gencode.vM22.annotation.gtf.gz":
-            "ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M22/gencode.vM22.annotation.gtf.gz"
+        "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz":
+            "ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+        "Homo_sapiens.GRCh38.99.gtf.gz":
+            "ftp://ftp.ensembl.org/pub/release-99/gtf/homo_sapiens/Homo_sapiens.GRCh38.99.gtf.gz"
     },
 
     "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
