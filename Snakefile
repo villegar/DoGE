@@ -45,7 +45,8 @@ CPUS_RNA = 20
 ADAPTER = which("trimmomatic")
 
 ####### Reference datasets #######
-GENOME4STAR = config["genome4star"]
+GENOME = config["genome"]
+#GENOME4STAR = config["genome4star"]
 #GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
 GENOME4PHIX = config["genome4phiX"]
 #KRAKEN_DB = config["krakenDB"]
@@ -57,8 +58,8 @@ GENOME4PHIX = config["genome4phiX"]
 rule all:
 	input:
 		expand("1.QC.RAW/{library}_{end}_fastqc.{format}", library=LIBS, end=[1, 2], format=["html","zip"]),
-        expand("3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.{format}",
-            library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"])
+        	expand("3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.{format}",
+            		library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"])
 	output:
 		logs 	= directory("0.LOGS"),
 		reports	= directory("10.MULTIQC")
