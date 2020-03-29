@@ -17,7 +17,7 @@
     "reads": {
         "extension": "fastq",
         "forward_read_id": "1",
-        "path": "/gpfs/scratch/Classes/stat736/walnutreads",
+        "path": "/gpfs/scratch/Classes/bio792/reads",
         "prefix": "SRR"
     }
 }
