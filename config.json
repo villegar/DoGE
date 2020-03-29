@@ -15,7 +15,7 @@
 
     "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
     "reads": {
-        "extension": "fastq",
+        "extension": "fastq.gz",
         "forward_read_id": "1",
         "path": "/gpfs/scratch/Classes/bio792/reads",
         "prefix": "SRR"
