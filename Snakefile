@@ -58,7 +58,7 @@ rule all:
 	input:
 		expand("1.QC.RAW/{library}_{end}_fastqc.{format}", library=LIBS, end=[1, 2], format=["html","zip"]),
         expand("3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.{format}",
-			library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"])
+            library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"])
 	output:
 		logs 	= directory("0.LOGS"),
 		reports	= directory("10.MULTIQC")
