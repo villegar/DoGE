@@ -42,6 +42,7 @@ CPUS_KRAKEN = 20
 CPUS_READCOUNTS = 5
 CPUS_RNA = 20
 
+ADAPTER = which("trimmomatic")
 
 ####### Reference datasets #######
 GENOME4STAR = config["genome4star"]
@@ -55,7 +56,9 @@ GENOME4PHIX = config["genome4phiX"]
 ####### Rules #######
 rule all:
 	input:
-		expand("1.QC.RAW/{library}_{end}_fastqc.{format}", library=LIBS, end=[1, 2], format=["html","zip"])
+		expand("1.QC.RAW/{library}_{end}_fastqc.{format}", library=LIBS, end=[1, 2], format=["html","zip"]),
+        expand("3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.{format}",
+			library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"]),
 
 	output:
 		logs 	= directory("0.LOGS"),
@@ -86,3 +89,40 @@ rule fastqc_raw:
 		CPUS_FASTQC
 	shell:
 		"fastqc -o 1.QC.RAW -t {threads} {input} 2> {log}"
+
+rule trim_reads:
+	input:
+		adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
+		r1 = rules.reads.input.r1,
+		r2 = rules.reads.input.r2
+	output:
+		forward_paired   = "2.TRIMMED/{library}_forward_paired.fastq.gz",
+		forward_unpaired = "2.TRIMMED/{library}_forward_unpaired.fastq.gz",
+		reverse_paired   = "2.TRIMMED/{library}_reverse_paired.fastq.gz",
+		reverse_unpaired = "2.TRIMMED/{library}_reverse_unpaired.fastq.gz"
+	message:
+		"Trimming reads"
+	log:
+		"2.TRIMMED/{library}.log"
+	threads:
+		CPUS_TRIMMING
+	shell:
+		"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+
+rule fastqc_trimmed:
+	input:
+		rules.trim_reads.output.forward_paired,
+		rules.trim_reads.output.forward_unpaired,
+		rules.trim_reads.output.reverse_paired,
+		rules.trim_reads.output.reverse_unpaired
+	output:
+		html = "3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.html",
+		zip  = "3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.zip"
+	message:
+		"FastQC on trimmed data"
+	log:
+		"3.QC.TRIMMED/{library}_{direction}_{mode}.log"
+	threads:
+		CPUS_FASTQC
+	shell:
+                "fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}"
