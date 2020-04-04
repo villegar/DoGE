@@ -56,7 +56,6 @@ GENOME4PHIX = config["genome4phiX"]
 #rRNA = config["rRNAref"]
 #rRNA_FILES = list(rRNA.keys())
 
-print("Raw Names")
 RAW_ENDS = [""]
 RAW_LIBS = LIBS
 TRM_LIBS = LIBS
@@ -70,10 +69,6 @@ if (len(ENDS) > 0):
     RAW_LIBS_R1 = el(LIBS,el(["_"],FORWARD_READ_ID))
     RAW_LIBS_R2 = el(LIBS,el(["_"],REVERSE_READ_ID))
     TRM_LIBS_OUT = el(DIRECTION,MODE)
-
-print(el(["3.QC.TRIMMED/"],el(LIBS,el([""],TRM_LIBS_OUT))))
-print("ENDS")
-print(ENDS)
 
 ####### Rules #######
 rule all:
@@ -107,7 +102,6 @@ rule fastqc_raw:
         shell("fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}")
 
 if PAIRED_END:
-    print("Using Paired End Trimming")
     rule trim_reads:
         input:
             # reads   = READS + "/{raw_reads}{raw_ends}." + EXTENSION,
@@ -124,6 +118,8 @@ if PAIRED_END:
         log:
             #"2.TRIMMED/{raw_reads}{raw_ends}.log"
             "2.TRIMMED/{raw_reads}.log"
+        message:
+            "Using Paired End Trimming"
         threads:
             CPUS_TRIMMING
         shell:
@@ -132,7 +128,6 @@ if PAIRED_END:
             #"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
 
 else:
-    print("Using Single End Trimming")
     rule trim_reads:
         input:
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
@@ -142,6 +137,8 @@ else:
             "2.TRIMMED/{raw_reads}." + EXTENSION
         log:
             "2.TRIMMED/{raw_reads}.log"
+        message:
+            "Using Single End Trimming"
         threads:
             CPUS_TRIMMING
         shell:
