@@ -1,5 +1,5 @@
 # D<sub>o</sub>GE: Differential Gene Expression Analysis Pipeline
-![doge](http://pixelartmaker.com/art/13d23ac43116c0c.png)
+![doge](images/logo.jpg)
  
 ## BIO792: Next Generation Sequencing Data Analysis
 ![Rule Graph](images/rule-graph.png?raw=true "Rule Graph")
