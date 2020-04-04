@@ -1,35 +1,37 @@
 ####### Libraries #######
-import glob
-import os
-
-####### Util functions #######
-def extractFilenames(fullnames,suffix):
-        names = []
-        for file in fullnames:
-            names.append(os.path.basename(file).split(suffix)[0])
-        return sorted(names)
-
-def findLibraries(path,prefix,suffix):
-	filenames_path = glob.glob(os.path.join(path,prefix) + "*" + suffix)
-	names = []
-	for file in filenames_path:
-	    library = os.path.basename(file).split(suffix)[0]
-	    if(library not in names):
-		    names.append(library)
-	return sorted(names)
-
-def which(file):
-        for path in os.environ["PATH"].split(os.pathsep):
-                if os.path.exists(os.path.join(path, file)):
-                        return path
-        return None
+from utils import extractFilenames, fastqc, findLibraries, which
+from utils import expand_list as el
 
 ####### Global variables #######
 EXTENSION = config["reads"]["extension"]
 PREFIX = config["reads"]["prefix"]
 READS = config["reads"]["path"]
 FORWARD_READ_ID = config["reads"]["forward_read_id"]
-SUFFIX = "_" + FORWARD_READ_ID + "." + EXTENSION
+REVERSE_READ_ID = config["reads"]["reverse_read_id"]
+PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
+if PAIRED_END:
+    DIRECTION = ["_forward_","_reverse_"]
+    # #DIRECTION = ["_1_","_2_"]
+    # DIRECTION = el(["_"],el([FORWARD_READ_ID,REVERSE_READ_ID],["_"]))
+    # DIRECTION = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
+    ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
+    FORWARD_READ_ID = [FORWARD_READ_ID]
+    MODE = ["paired","unpaired"]
+    MODE = ["","_un"]
+    #MODE = ["1","2"]
+    REVERSE_READ_ID = [REVERSE_READ_ID]
+    SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
+    DIRECTION = []
+    MODE = []
+
+else:
+    DIRECTION = []
+    ENDS = []
+    FORWARD_READ_ID = []
+    MODE = []
+    REVERSE_READ_ID = []
+    SUFFIX = "." + EXTENSION
+
 LIBS = findLibraries(READS,PREFIX,SUFFIX)
 
 ###### Multithread configuration #####
@@ -54,75 +56,121 @@ GENOME4PHIX = config["genome4phiX"]
 #rRNA = config["rRNAref"]
 #rRNA_FILES = list(rRNA.keys())
 
+print("Raw Names")
+RAW_ENDS = [""]
+RAW_LIBS = LIBS
+TRM_LIBS = LIBS
+TRM_LIBS_OUT = [""]
+RAW_LIBS_R1 = LIBS
+RAW_LIBS_R2 = LIBS
+if (len(ENDS) > 0):
+    RAW_ENDS = el(["_"],ENDS)
+    RAW_LIBS = el(LIBS,el(["_"],ENDS))
+    TRM_LIBS = el(LIBS,el(DIRECTION,MODE))
+    RAW_LIBS_R1 = el(LIBS,el(["_"],FORWARD_READ_ID))
+    RAW_LIBS_R2 = el(LIBS,el(["_"],REVERSE_READ_ID))
+    TRM_LIBS_OUT = el(DIRECTION,MODE)
+
+print(el(["3.QC.TRIMMED/"],el(LIBS,TRM_LIBS_OUT)))
+
 ####### Rules #######
 rule all:
-	input:
-		expand("1.QC.RAW/{library}_{end}_fastqc.{format}", library=LIBS, end=[1, 2], format=["html","zip"]),
-        	expand("3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.{format}",
-            		library=LIBS, direction=["forward","reverse"], mode=["paired","unpaired"], format=["html","zip"])
-	output:
-		logs 	= directory("0.LOGS"),
-		reports	= directory("10.MULTIQC")
-	run:
-		shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d 1.QC.RAW")
-		shell("mkdir -p {output.logs} && mv *.log {output.logs}")
-
-rule reads:
-	input:
-		reads = READS + "/{library}_{end}." + EXTENSION,
-		r1    = READS + "/{library}_1." + EXTENSION,
-		r2    = READS + "/{library}_2." + EXTENSION
-	message:
-		"Gathering reads"
+    input:
+        expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}", raw_reads = LIBS,
+            raw_ends = RAW_ENDS, format = ["html","zip"]),
+        # expand("2.TRIMMED/{raw_reads}{trm_ends}.{format}", raw_reads = LIBS,
+        #      raw_ends = RAW_ENDS,
+        #      trm_ends = TRM_LIBS_OUT,
+        #      format=["fastq"]),
+        expand("3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.{format}",
+            raw_reads = LIBS, trm_reads_out = TRM_LIBS_OUT, format = ["html","zip"])
+    output:
+        logs 	= directory("0.LOGS"),
+        reports	= directory("10.MULTIQC")
+    run:
+        shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d 1.QC.RAW")
+        shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d 2.TRIMMED")
+        shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d 3.QC.TRIMMED")
+        shell("mkdir -p {output.logs} && mv *.log {output.logs}")
 
 rule fastqc_raw:
-	input:
-		reads = rules.reads.input.reads
-	output:
-		html = "1.QC.RAW/{library}_{end}_fastqc.html",
-		zip  = "1.QC.RAW/{library}_{end}_fastqc.zip"
-	message:
-		"FastQC on raw data"
-	log:
-		"1.QC.RAW/{library}_{end}.log"
-	threads:
-		CPUS_FASTQC
-	shell:
-		"fastqc -o 1.QC.RAW -t {threads} {input} 2> {log}"
+    input:
+        reads = READS + "/{raw_reads}{raw_ends}." + EXTENSION
+        #reads = rules.reads.input.reads
+    output:
+        html = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.html",
+        zip  = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.zip"
+    message:
+        "FastQC on raw data"
+    log:
+        "1.QC.RAW/{raw_reads}{raw_ends}.log"
+    threads:
+        CPUS_FASTQC
+    run:
+        shell("fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}")
 
-rule trim_reads:
-	input:
-		adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
-		r1 = rules.reads.input.r1,
-		r2 = rules.reads.input.r2
-	output:
-		forward_paired   = "2.TRIMMED/{library}_forward_paired.fastq.gz",
-		forward_unpaired = "2.TRIMMED/{library}_forward_unpaired.fastq.gz",
-		reverse_paired   = "2.TRIMMED/{library}_reverse_paired.fastq.gz",
-		reverse_unpaired = "2.TRIMMED/{library}_reverse_unpaired.fastq.gz"
-	message:
-		"Trimming reads"
-	log:
-		"2.TRIMMED/{library}.log"
-	threads:
-		CPUS_TRIMMING
-	shell:
-		"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+if PAIRED_END:
+    print("Using Paired End Trimming")
+    rule trim_reads:
+        input:
+            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"), \
+            reads   = READS + "/{raw_reads}1." + EXTENSION
+        output:
+            "2.TRIMMED/{raw_reads}_1." + EXTENSION, \
+            "2.TRIMMED/{raw_reads}_1_un." + EXTENSION, \
+            "2.TRIMMED/{raw_reads}_2." + EXTENSION, \
+            "2.TRIMMED/{raw_reads}_2_un." + EXTENSION
+        log:
+            "2.TRIMMED/{raw_reads}.log"
+        threads:
+            CPUS_TRIMMING
+        shell:
+            "trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+            #"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
 
-rule fastqc_trimmed:
-	input:
-		rules.trim_reads.output.forward_paired,
-		rules.trim_reads.output.forward_unpaired,
-		rules.trim_reads.output.reverse_paired,
-		rules.trim_reads.output.reverse_unpaired
-	output:
-		html = "3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.html",
-		zip  = "3.QC.TRIMMED/{library}_{direction}_{mode}_fastqc.zip"
-	message:
-		"FastQC on trimmed data"
-	log:
-		"3.QC.TRIMMED/{library}_{direction}_{mode}.log"
-	threads:
-		CPUS_FASTQC
-	shell:
-                "fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}"
+else:
+    print("Using Single End Trimming")
+    rule trim_reads:
+        input:
+            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
+            reads   = READS + "/{raw_reads}." + EXTENSION
+            #reads = rules.reads.input.reads
+        output:
+            "2.TRIMMED/{raw_reads}." + EXTENSION
+        log:
+            "2.TRIMMED/{raw_reads}.log"
+        threads:
+            CPUS_TRIMMING
+        shell:
+            "trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+
+if PAIRED_END:
+    rule fastqc_trimmed:
+        input:
+            rules.trim_reads.output
+        output:
+            html = "3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.html",
+            zip  = "3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.zip"
+        message:
+            "FastQC on trimmed data"
+        log:
+            "3.QC.TRIMMED/{raw_reads}{trm_reads_out}.log"
+        threads:
+            CPUS_FASTQC
+        run:
+            shell("fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}")
+else:
+    rule fastqc_trimmed:
+        input:
+            rules.trim_reads.output
+        output:
+            html = "3.QC.TRIMMED/{raw_reads}_fastqc.html",
+            zip  = "3.QC.TRIMMED/{raw_reads}_fastqc.zip"
+        message:
+            "FastQC on trimmed data"
+        log:
+            "3.QC.TRIMMED/{raw_reads}.log"
+        threads:
+            CPUS_FASTQC
+        run:
+            shell("fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}")
