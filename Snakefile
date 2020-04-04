@@ -21,8 +21,8 @@ if PAIRED_END:
     #MODE = ["1","2"]
     REVERSE_READ_ID = [REVERSE_READ_ID]
     SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
-    DIRECTION = []
-    MODE = []
+    DIRECTION = [""]
+    MODE = [""]
 
 else:
     DIRECTION = []
@@ -71,19 +71,17 @@ if (len(ENDS) > 0):
     RAW_LIBS_R2 = el(LIBS,el(["_"],REVERSE_READ_ID))
     TRM_LIBS_OUT = el(DIRECTION,MODE)
 
-print(el(["3.QC.TRIMMED/"],el(LIBS,TRM_LIBS_OUT)))
+print(el(["3.QC.TRIMMED/"],el(LIBS,el([""],TRM_LIBS_OUT))))
+print("ENDS")
+print(ENDS)
 
 ####### Rules #######
 rule all:
     input:
-        expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}", raw_reads = LIBS,
-            raw_ends = RAW_ENDS, format = ["html","zip"]),
-        # expand("2.TRIMMED/{raw_reads}{trm_ends}.{format}", raw_reads = LIBS,
-        #      raw_ends = RAW_ENDS,
-        #      trm_ends = TRM_LIBS_OUT,
-        #      format=["fastq"]),
-        expand("3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.{format}",
-            raw_reads = LIBS, trm_reads_out = TRM_LIBS_OUT, format = ["html","zip"])
+        expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
+            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
+        expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
+            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"])
     output:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
@@ -96,7 +94,6 @@ rule all:
 rule fastqc_raw:
     input:
         reads = READS + "/{raw_reads}{raw_ends}." + EXTENSION
-        #reads = rules.reads.input.reads
     output:
         html = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.html",
         zip  = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.zip"
@@ -113,19 +110,25 @@ if PAIRED_END:
     print("Using Paired End Trimming")
     rule trim_reads:
         input:
-            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"), \
-            reads   = READS + "/{raw_reads}1." + EXTENSION
+            # reads   = READS + "/{raw_reads}{raw_ends}." + EXTENSION,
+            r1      = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
+            r2      = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION,
+            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters")
         output:
-            "2.TRIMMED/{raw_reads}_1." + EXTENSION, \
-            "2.TRIMMED/{raw_reads}_1_un." + EXTENSION, \
-            "2.TRIMMED/{raw_reads}_2." + EXTENSION, \
-            "2.TRIMMED/{raw_reads}_2_un." + EXTENSION
+            # "2.TRIMMED/{raw_reads}{raw_ends}." + EXTENSION,
+            # "2.TRIMMED/{raw_reads}{raw_ends}_un." + EXTENSION,
+            "2.TRIMMED/{raw_reads}" + ENDS[0] + "." + EXTENSION,
+            "2.TRIMMED/{raw_reads}" + ENDS[0] + "_un." + EXTENSION,
+            "2.TRIMMED/{raw_reads}" + ENDS[1] + "." + EXTENSION,
+            "2.TRIMMED/{raw_reads}" + ENDS[1] + "_un." + EXTENSION
         log:
+            #"2.TRIMMED/{raw_reads}{raw_ends}.log"
             "2.TRIMMED/{raw_reads}.log"
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+            #"trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+            "trimmomatic PE -threads {threads} {input.r1} {input.r2} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
             #"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
 
 else:
@@ -149,12 +152,12 @@ if PAIRED_END:
         input:
             rules.trim_reads.output
         output:
-            html = "3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.html",
-            zip  = "3.QC.TRIMMED/{raw_reads}{trm_reads_out}_fastqc.zip"
+            html = "3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.html",
+            zip  = "3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.zip"
         message:
             "FastQC on trimmed data"
         log:
-            "3.QC.TRIMMED/{raw_reads}{trm_reads_out}.log"
+            "3.QC.TRIMMED/{raw_reads}{raw_ends}.log"
         threads:
             CPUS_FASTQC
         run:
