@@ -4,7 +4,8 @@ import glob
 import os
 
 ####### Util functions #######
-def expand_list(A,B):return([''.join(r) for r in product(A,B)])
+def expand_list(A,B):
+    return([''.join(r) for r in product(A,B)])
 
 def extractFilenames(fullnames,suffix):
     names = []
