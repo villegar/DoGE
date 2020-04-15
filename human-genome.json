@@ -1,0 +1,6 @@
+{
+  "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz":
+      "ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+  "Homo_sapiens.GRCh38.99.gtf.gz":
+      "ftp://ftp.ensembl.org/pub/release-99/gtf/homo_sapiens/Homo_sapiens.GRCh38.99.gtf.gz"
+}
