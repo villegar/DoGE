@@ -1,5 +1,5 @@
 ####### Libraries #######
-from utils import extractFilenames, fastqc, findLibraries, which
+from utils import extractFilenames, findLibraries, which
 from utils import expand_list as el
 
 ####### Global variables #######
@@ -48,6 +48,9 @@ ADAPTER = which("trimmomatic")
 
 ####### Reference datasets #######
 GENOME = config["genome"]
+GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
+print(GENOME)
+print(GENOME_FILENAMES)
 #GENOME4STAR = config["genome4star"]
 #GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
 GENOME4PHIX = config["genome4phiX"]
@@ -76,7 +79,9 @@ rule all:
         expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
-            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"])
+            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
+        #expand("GENOME/{hisat2}/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES)
+        directory("GENOME/HISAT2_INDEX")
     output:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
@@ -174,3 +179,24 @@ else:
             CPUS_FASTQC
         run:
             shell("fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}")
+
+rule hisat2_index:
+    input:
+        expand("GENOME/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES[0])
+        # primary_assembly = GENOME_FILENAMES[0]
+    output:
+        directory("GENOME/HISAT2_INDEX")
+    #    expand("GENOME/{hisat2}/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES)
+    log:
+        "hisat2_index.log"
+    message:
+        "Creating HISAT2 index"
+    threads:
+        20
+    shell:
+        "hisat2-build –p {threads} {input} {output}"
+        # shell()
+        # for link_index in sorted(GENOME.keys()):
+        #     shell("wget -q {link}".format(link=GENOME[link_index]))
+        #
+        #     if link_index.endswith(".fa.gz"):
