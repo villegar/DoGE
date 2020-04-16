@@ -196,7 +196,7 @@ rule hisat2_index:
     threads:
         20
     shell:
-        "hisat2-build –p {threads} {input} {output}"
+        "hisat2-build -p {threads} {input} {output}"
         # shell()
         # for link_index in sorted(GENOME.keys()):
         #     shell("wget -q {link}".format(link=GENOME[link_index]))
