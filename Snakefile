@@ -193,10 +193,9 @@ rule hisat2_index:
         "hisat2_index.log"
     message:
         "Creating HISAT2 index"
-    threads:
-        20
+    threads: 20
     shell:
-        "hisat2-build -p {threads} {input} {output}"
+        "hisat2-build -p {threads} {input} {output}/idx"
         # shell()
         # for link_index in sorted(GENOME.keys()):
         #     shell("wget -q {link}".format(link=GENOME[link_index]))
@@ -214,10 +213,9 @@ if PAIRED_END:
             "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
         message:
             "Genome alignment"
-        threads:
-            8
+        threads: 8
         shell:
-            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index} -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
+            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 else:
     rule align_genome:
@@ -230,7 +228,6 @@ else:
             "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
         message:
             "Genome alignment"
-        threads:
-            8
+        threads: 8
         shell:
-            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index} -U {input.reads} | samtools view -@ 8 -bS - | samtools sort -@ 8  -o {output}"
+            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
