@@ -264,6 +264,6 @@ rule alignment_quality:
     message:
         "Assessing alignment quality"
     threads:
-        4
+        CPUS_MAPPING
     shell:
         "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads} 2> {log}"
