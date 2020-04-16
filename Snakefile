@@ -38,6 +38,7 @@ LIBS = findLibraries(READS,PREFIX,SUFFIX)
 CPUS_FASTQC = 3
 CPUS_PHIX = 15
 CPUS_TRIMMING = 5
+CPUS_MAPPING = 10
 CPUS_STAR = 20
 CPUS_ARIA = 16
 CPUS_KRAKEN = 20
@@ -49,7 +50,6 @@ ADAPTER = which("trimmomatic")
 ####### Reference datasets #######
 GENOME = config["genome"]
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
-print(GENOME_FILENAMES)
 #GENOME4STAR = config["genome4star"]
 #GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
 GENOME4PHIX = config["genome4phiX"]
@@ -81,8 +81,9 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         #expand("GENOME/{hisat2}/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES)
         #directory("GENOME/HISAT2_INDEX")
-        expand("4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam",
-            raw_reads = LIBS, raw_ends = RAW_ENDS)
+        # expand("4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam",
+        #     raw_reads = LIBS, raw_ends = RAW_ENDS)
+        expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS)
         #READS + "/{raw_reads}_sorted.bam"
     output:
         logs 	= directory("0.LOGS"),
@@ -203,32 +204,36 @@ rule hisat2_index:
         #
         #     if link_index.endswith(".fa.gz"):
 if PAIRED_END:
-    rule align_genome:
+    rule mapping:
         input:
             index = rules.hisat2_index.output,
             r1    = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
             r2    = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION
         output:
-            "4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam"
+            "4.ALIGNMENT/{raw_reads}_sorted.bam"
+            # "4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam"
         log:
-            "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
+            "4.ALIGNMENT/{raw_reads}.log"
+            # "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
         message:
             "Genome alignment"
-        threads: 8
+        threads:
+            CPUS_MAPPING
         shell:
             "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 else:
-    rule align_genome:
+    rule mapping:
         input:
             index = rules.hisat2_index.output,
-            reads = READS + "/{raw_reads}{raw_ends}." + EXTENSION
+            reads = READS + "/{raw_reads}." + EXTENSION
         output:
-            "4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam"
+            "4.ALIGNMENT/{raw_reads}_sorted.bam"
         log:
-            "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
+            "4.ALIGNMENT/{raw_reads}.log"
         message:
             "Genome alignment"
-        threads: 8
+        threads:
+            CPUS_MAPPING
         shell:
             "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
