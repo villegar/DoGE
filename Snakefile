@@ -85,7 +85,8 @@ rule all:
         # expand("4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam",
         #     raw_reads = LIBS, raw_ends = RAW_ENDS)
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
-        expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS)
+        expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
+        "6.COUNTS/counts.txt"
         #READS + "/{raw_reads}_sorted.bam"
     output:
         logs 	= directory("0.LOGS"),
@@ -267,3 +268,14 @@ rule alignment_quality:
         CPUS_MAPPING
     shell:
         "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads} 2> {log}"
+
+rule feature_counts:
+    input:
+        gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0]),
+        bam = el(["4.ALIGNMENT/"],el(LIBS,["_sorted.bam"]))
+    output:
+        "6.COUNTS/counts.txt"
+    threads:
+        20
+    shell:
+        "featureCounts -T {threads} -t 'exon' -g 'gene_id' -Q 30 -F 'GTF' -a {input.gtf} –o {output} {input.bam}"
