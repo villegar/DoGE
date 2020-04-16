@@ -1,10 +1,4 @@
 {
-    "genome4phiX":
-    {
-        "PhiX":
-            "ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/PhiX/Illumina/RTA/PhiX_Illumina_RTA.tar.gz"
-    },
-
     "genome":
     {
         "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz":
@@ -15,7 +9,7 @@
 
     "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
     "reads": {
-        "extension": "fastq.gz",
+        "extension": "fastq",
         "end_type": "se",
         "forward_read_id": "1",
         "reverse_read_id": "2",
