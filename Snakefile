@@ -194,8 +194,9 @@ rule hisat2_index:
     message:
         "Creating HISAT2 index"
     threads: 20
-    shell:
-        "hisat2-build -p {threads} {input} {output}/idx"
+    run:
+        shell("mkdir -p GENOME/HISAT2_INDEX")
+        shell("hisat2-build -p {threads} {input} {output}/idx")
         # shell()
         # for link_index in sorted(GENOME.keys()):
         #     shell("wget -q {link}".format(link=GENOME[link_index]))
