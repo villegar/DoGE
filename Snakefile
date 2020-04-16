@@ -14,6 +14,7 @@ if PAIRED_END:
     # #DIRECTION = ["_1_","_2_"]
     # DIRECTION = el(["_"],el([FORWARD_READ_ID,REVERSE_READ_ID],["_"]))
     # DIRECTION = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
+    ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
     FORWARD_READ_ID = [FORWARD_READ_ID]
     MODE = ["paired","unpaired"]
@@ -60,17 +61,11 @@ GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 #rRNA_FILES = list(rRNA.keys())
 
 RAW_ENDS = [""]
-RAW_LIBS = LIBS
 TRM_LIBS = LIBS
 TRM_LIBS_OUT = [""]
-RAW_LIBS_R1 = LIBS
-RAW_LIBS_R2 = LIBS
-if (len(ENDS) > 0):
+if PAIRED_END:
     RAW_ENDS = el(["_"],ENDS)
-    RAW_LIBS = el(LIBS,el(["_"],ENDS))
     TRM_LIBS = el(LIBS,el(DIRECTION,MODE))
-    RAW_LIBS_R1 = el(LIBS,el(["_"],FORWARD_READ_ID))
-    RAW_LIBS_R2 = el(LIBS,el(["_"],REVERSE_READ_ID))
     TRM_LIBS_OUT = el(DIRECTION,MODE)
 
 ####### Rules #######
@@ -80,10 +75,6 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        #expand("GENOME/{hisat2}/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES)
-        #directory("GENOME/HISAT2_INDEX")
-        # expand("4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam",
-        #     raw_reads = LIBS, raw_ends = RAW_ENDS)
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
         expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
@@ -118,16 +109,16 @@ if PAIRED_END:
     rule trim_reads:
         input:
             # reads   = READS + "/{raw_reads}{raw_ends}." + EXTENSION,
-            r1      = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
-            r2      = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION,
+            r1      = expand(READS + "/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION, raw_reads = LIBS),
+            r2      = expand(READS + "/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION, raw_reads = LIBS),
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters")
         output:
             # "2.TRIMMED/{raw_reads}{raw_ends}." + EXTENSION,
             # "2.TRIMMED/{raw_reads}{raw_ends}_un." + EXTENSION,
-            "2.TRIMMED/{raw_reads}" + ENDS[0] + "." + EXTENSION,
-            "2.TRIMMED/{raw_reads}" + ENDS[0] + "_un." + EXTENSION,
-            "2.TRIMMED/{raw_reads}" + ENDS[1] + "." + EXTENSION,
-            "2.TRIMMED/{raw_reads}" + ENDS[1] + "_un." + EXTENSION
+            r1    = "2.TRIMMED/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION,
+            r1_un = "2.TRIMMED/{raw_reads}" + RAW_ENDS[0] + "_un." + EXTENSION,
+            r2    = "2.TRIMMED/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION,
+            r2_un = "2.TRIMMED/{raw_reads}" + RAW_ENDS[1] + "_un." + EXTENSION
         log:
             #"2.TRIMMED/{raw_reads}{raw_ends}.log"
             "2.TRIMMED/{raw_reads}.log"
@@ -208,8 +199,10 @@ if PAIRED_END:
     rule alignment:
         input:
             index = rules.hisat2_index.output,
-            r1    = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
-            r2    = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION
+            r1    = rules.trim_reads.output.r1,
+            r2    = rules.trim_reads.output.r2,
+            # r1    = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
+            # r2    = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION
         output:
             "4.ALIGNMENT/{raw_reads}_sorted.sam"
             # "4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam"
@@ -228,7 +221,8 @@ else:
     rule alignment:
         input:
             index = rules.hisat2_index.output,
-            reads = READS + "/{raw_reads}." + EXTENSION
+            reads = rules.trim_reads.output
+            # reads = READS + "/{raw_reads}." + EXTENSION
         output:
             "4.ALIGNMENT/{raw_reads}_sorted.sam"
         log:
