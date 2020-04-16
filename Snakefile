@@ -53,7 +53,7 @@ GENOME = config["genome"]
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 #GENOME4STAR = config["genome4star"]
 #GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
-GENOME4PHIX = config["genome4phiX"]
+#GENOME4PHIX = config["genome4phiX"]
 #KRAKEN_DB = config["krakenDB"]
 #KRAKEN_DB_FILENAMES = extractFilenames(KRAKEN_DB.keys(),".tgz")
 #rRNA = config["rRNAref"]
@@ -293,4 +293,5 @@ rule quantification_table:
     output:
         "6.COUNTS/counts.matrix"
     shell:
-        "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
+        "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | \
+        sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
