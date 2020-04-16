@@ -39,7 +39,7 @@ CPUS_FASTQC = 3
 CPUS_PHIX = 15
 CPUS_TRIMMING = 5
 CPUS_HISAT2_INDEX = 20
-CPUS_MAPPING = 10
+CPUS_ALIGNMENT = 10
 CPUS_STAR = 20
 CPUS_ARIA = 16
 CPUS_KRAKEN = 20
@@ -86,7 +86,7 @@ rule all:
         #     raw_reads = LIBS, raw_ends = RAW_ENDS)
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
-        "6.COUNTS/counts.txt"
+        expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
         #READS + "/{raw_reads}_sorted.bam"
     output:
         logs 	= directory("0.LOGS"),
@@ -205,7 +205,7 @@ rule hisat2_index:
         "mkdir -p GENOME/HISAT2_INDEX && hisat2-build -p {threads} {input} {output}/idx 2> {log}"
 
 if PAIRED_END:
-    rule mapping:
+    rule alignment:
         input:
             index = rules.hisat2_index.output,
             r1    = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
@@ -219,13 +219,13 @@ if PAIRED_END:
         message:
             "Genome alignment"
         threads:
-            CPUS_MAPPING
+            CPUS_ALIGNMENT
         shell:
             "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} -S {output} 2> {log}"
             #"hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 else:
-    rule mapping:
+    rule alignment:
         input:
             index = rules.hisat2_index.output,
             reads = READS + "/{raw_reads}." + EXTENSION
@@ -236,14 +236,14 @@ else:
         message:
             "Genome alignment"
         threads:
-            CPUS_MAPPING
+            CPUS_ALIGNMENT
         shell:
             "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -U {input.reads} -S {output} 2> {log}"
             #"hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 rule sam2bam:
     input:
-        rules.mapping.output
+        rules.alignment.output
     output:
         "4.ALIGNMENT/{raw_reads}_sorted.bam"
     log:
@@ -251,13 +251,13 @@ rule sam2bam:
     message:
         "Converting SAM to BAM"
     threads:
-        CPUS_MAPPING
+        CPUS_ALIGNMENT
     shell:
         "samtools view -@ {threads} -bS {input} | samtools sort -@ {threads} -o {output} 2> {log}"
 
 rule alignment_quality:
     input:
-        rules.mapping.output
+        rules.alignment.output
     output:
         "5.QC.ALIGNMENT/{raw_reads}_stats.txt"
     log:
@@ -265,7 +265,7 @@ rule alignment_quality:
     message:
         "Assessing alignment quality"
     threads:
-        CPUS_MAPPING
+        CPUS_ALIGNMENT
     shell:
         "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads} 2> {log}"
 
@@ -278,4 +278,19 @@ rule feature_counts:
     threads:
         20
     shell:
-        "featureCounts -T {threads} -t 'exon' -g 'gene_id' -Q 30 -F 'GTF' -a {input.gtf} –o {output} {input.bam}"
+        "mkdir -p 6.COUNTS && \
+        featureCounts -T {threads} -t exon -g gene_id -Q 30 -F GTF \
+        -a {input.gtf} \
+        -o {output} \
+        {input.bam}"
+
+rule quantification_table:
+    input:
+        counts = rules.feature_counts.output
+    params:
+        libs = "".join(el(["\\t"],LIBS)),
+        cols = "1," + ",".join([str(i) for i in range(7, 7 + len(LIBS))])
+    output:
+        "6.COUNTS/counts.matrix"
+    shell:
+        "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
