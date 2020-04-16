@@ -38,6 +38,7 @@ LIBS = findLibraries(READS,PREFIX,SUFFIX)
 CPUS_FASTQC = 3
 CPUS_PHIX = 15
 CPUS_TRIMMING = 5
+CPUS_HISAT2_INDEX = 20
 CPUS_MAPPING = 10
 CPUS_STAR = 20
 CPUS_ARIA = 16
@@ -194,15 +195,12 @@ rule hisat2_index:
         "hisat2_index.log"
     message:
         "Creating HISAT2 index"
-    threads: 20
+    threads:
+        CPUS_HISAT2_INDEX
     run:
         shell("mkdir -p GENOME/HISAT2_INDEX")
         shell("hisat2-build -p {threads} {input} {output}/idx")
-        # shell()
-        # for link_index in sorted(GENOME.keys()):
-        #     shell("wget -q {link}".format(link=GENOME[link_index]))
-        #
-        #     if link_index.endswith(".fa.gz"):
+
 if PAIRED_END:
     rule mapping:
         input:
@@ -220,7 +218,7 @@ if PAIRED_END:
         threads:
             CPUS_MAPPING
         shell:
-            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
+            "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 else:
     rule mapping:
@@ -236,4 +234,4 @@ else:
         threads:
             CPUS_MAPPING
         shell:
-            "hisat2 --phred33 --p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
+            "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
