@@ -231,10 +231,8 @@ rule alignment_quality:
         "5.QC.ALIGNMENT/{raw_reads}_stats.log"
     message:
         "Assessing alignment quality"
-    threads:
-        CPUS_ALIGNMENT
     shell:
-        "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads}"
+        "SAMstats --sorted_sam_file {input} --outf {output}"
 
 rule feature_counts:
     input:
