@@ -9,7 +9,7 @@ READS = config["reads"]["path"]
 FORWARD_READ_ID = config["reads"]["forward_read_id"]
 REVERSE_READ_ID = config["reads"]["reverse_read_id"]
 PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
-TRIMMOMATIC_OPTIONS = config["trimmomatic"]
+TRIMMOMATIC_OPTIONS = config["trimmomatic"]["options"]
 if PAIRED_END:
     ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
@@ -52,16 +52,15 @@ GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 RAW_ENDS = [""]
 if PAIRED_END:
     RAW_ENDS = el(["_"],ENDS)
-    RAW_ENDS = ENDS
+    #RAW_ENDS = ENDS
 
 ####### Rules #######
 rule all:
     input:
         expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
-            raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
+            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
-            raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
-        expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
+            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
         expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
     output:
