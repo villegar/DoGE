@@ -15,5 +15,9 @@
         "reverse_read_id": "2",
         "path": "/gpfs/scratch/Classes/bio792/reads",
         "prefix": "SRR"
+    },
+
+    "trimmomatic":{
+      "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36"
     }
 }
