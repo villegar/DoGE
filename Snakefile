@@ -102,30 +102,25 @@ rule fastqc_raw:
 if PAIRED_END:
     rule trim_reads:
         input:
-            # reads   = READS + "/{raw_reads}{raw_ends}." + EXTENSION,
-            r1      = READS + "/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
-            r2      = READS + "/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION,
-            # r1      = expand(READS + "/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION, raw_reads = LIBS),
-            # r2      = expand(READS + "/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION, raw_reads = LIBS),
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters")
+            r1      = READS + "/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
+            r2      = READS + "/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION
         output:
-            # "2.TRIMMED/{raw_reads}{raw_ends}." + EXTENSION,
-            # "2.TRIMMED/{raw_reads}{raw_ends}_un." + EXTENSION,
             r1    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
             r1_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "_un." + EXTENSION,
             r2    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION,
             r2_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "_un." + EXTENSION
+        params:
+            options = TRIMMOMATIC_OPTIONS
         log:
-            #"2.TRIMMED/{raw_reads}{raw_ends}.log"
             "2.TRIMMED/{raw_reads}.log"
         message:
             "Using Paired End Trimming"
         threads:
             CPUS_TRIMMING
         shell:
-            #"trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
-            "trimmomatic PE -threads {threads} {input.r1} {input.r2} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
-            #"trimmomatic PE -threads {threads} {input.r1} {input.r2} {output.forward_paired} {output.forward_unpaired} {output.reverse_paired} {output.reverse_unpaired} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+            "trimmomatic PE -threads {threads} {input.r1} {input.r2} \
+            {output} {params.options} 2> {log}"
 
 else:
     rule trim_reads:
