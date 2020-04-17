@@ -193,28 +193,22 @@ if PAIRED_END:
             index = rules.hisat2_index.output,
             r1    = rules.trim_reads.output.r1,
             r2    = rules.trim_reads.output.r2,
-            # r1    = READS + "/{raw_reads}" + ENDS[0] + "." + EXTENSION,
-            # r2    = READS + "/{raw_reads}" + ENDS[1] + "." + EXTENSION
         output:
             "4.ALIGNMENT/{raw_reads}_sorted.sam"
-            # "4.ALIGNMENT/{raw_reads}{raw_ends}_sorted.bam"
         log:
             "4.ALIGNMENT/{raw_reads}_sam.log"
-            # "4.ALIGNMENT/{raw_reads}{raw_ends}.log"
         message:
             "Genome alignment"
         threads:
             CPUS_ALIGNMENT
         shell:
             "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} -S {output} 2> {log}"
-            #"hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -1 {input.r1} -2 {input.r2} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 else:
     rule alignment:
         input:
             index = rules.hisat2_index.output,
             reads = rules.trim_reads.output
-            # reads = READS + "/{raw_reads}." + EXTENSION
         output:
             "4.ALIGNMENT/{raw_reads}_sorted.sam"
         log:
@@ -225,7 +219,6 @@ else:
             CPUS_ALIGNMENT
         shell:
             "hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -U {input.reads} -S {output} 2> {log}"
-            #"hisat2 --phred33 -p {threads} --qc-filter -x {input.index}/idx -U {input.reads} | samtools view -@ {threads} -bS - | samtools sort -@ {threads} -o {output}"
 
 rule sam2bam:
     input:
