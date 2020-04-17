@@ -11,10 +11,6 @@ REVERSE_READ_ID = config["reads"]["reverse_read_id"]
 PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
 TRIMMOMATIC_OPTIONS = config["trimmomatic"]
 if PAIRED_END:
-    DIRECTION = ["_forward_","_reverse_"]
-    # #DIRECTION = ["_1_","_2_"]
-    # DIRECTION = el(["_"],el([FORWARD_READ_ID,REVERSE_READ_ID],["_"]))
-    # DIRECTION = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
     FORWARD_READ_ID = [FORWARD_READ_ID]
@@ -23,11 +19,9 @@ if PAIRED_END:
     #MODE = ["1","2"]
     REVERSE_READ_ID = [REVERSE_READ_ID]
     SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
-    DIRECTION = [""]
     MODE = [""]
 
 else:
-    DIRECTION = []
     ENDS = []
     FORWARD_READ_ID = []
     MODE = []
@@ -62,13 +56,9 @@ GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 #rRNA_FILES = list(rRNA.keys())
 
 RAW_ENDS = [""]
-TRM_LIBS = LIBS
-TRM_LIBS_OUT = [""]
 if PAIRED_END:
     RAW_ENDS = el(["_"],ENDS)
     RAW_ENDS = ENDS
-    TRM_LIBS = el(LIBS,el(DIRECTION,MODE))
-    TRM_LIBS_OUT = el(DIRECTION,MODE)
 
 ####### Rules #######
 rule all:
