@@ -25,7 +25,6 @@ library(ggplot2)
 library(gridExtra)
 library(knitr)
 library(kableExtra)
-library(latex2exp)
 library(pander)
 
 library(foreach)
@@ -33,6 +32,7 @@ library(doParallel)
 library(tictoc)
 ```
 
+install.packag
 ```{r}
 ## try http:// if https:// URLs are not supported
 # BiocManager::install("edgeR") # Installing
