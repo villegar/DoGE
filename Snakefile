@@ -234,7 +234,7 @@ rule alignment_quality:
     threads:
         CPUS_ALIGNMENT
     shell:
-        "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads} 2> {log}"
+        "SAMstatsParallel --sorted_sam_file {input} --outf {output} --threads {threads}"
 
 rule feature_counts:
     input:
