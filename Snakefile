@@ -9,6 +9,7 @@ READS = config["reads"]["path"]
 FORWARD_READ_ID = config["reads"]["forward_read_id"]
 REVERSE_READ_ID = config["reads"]["reverse_read_id"]
 PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
+TRIMMOMATIC_OPTIONS = config["trimmomatic"]
 if PAIRED_END:
     DIRECTION = ["_forward_","_reverse_"]
     # #DIRECTION = ["_1_","_2_"]
@@ -65,6 +66,7 @@ TRM_LIBS = LIBS
 TRM_LIBS_OUT = [""]
 if PAIRED_END:
     RAW_ENDS = el(["_"],ENDS)
+    RAW_ENDS = ENDS
     TRM_LIBS = el(LIBS,el(DIRECTION,MODE))
     TRM_LIBS_OUT = el(DIRECTION,MODE)
 
@@ -72,7 +74,9 @@ if PAIRED_END:
 rule all:
     input:
         expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
-            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
+            raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
+        # expand("2.TRIMMED/{raw_reads2}{raw_ends2}.{format}",
+        #     raw_reads2 = LIBS, raw_ends2 = RAW_ENDS, format = EXTENSION),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
@@ -109,16 +113,18 @@ if PAIRED_END:
     rule trim_reads:
         input:
             # reads   = READS + "/{raw_reads}{raw_ends}." + EXTENSION,
-            r1      = expand(READS + "/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION, raw_reads = LIBS),
-            r2      = expand(READS + "/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION, raw_reads = LIBS),
+            r1      = READS + "/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
+            r2      = READS + "/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION,
+            # r1      = expand(READS + "/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION, raw_reads = LIBS),
+            # r2      = expand(READS + "/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION, raw_reads = LIBS),
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters")
         output:
             # "2.TRIMMED/{raw_reads}{raw_ends}." + EXTENSION,
             # "2.TRIMMED/{raw_reads}{raw_ends}_un." + EXTENSION,
-            r1    = "2.TRIMMED/{raw_reads}" + RAW_ENDS[0] + "." + EXTENSION,
-            r1_un = "2.TRIMMED/{raw_reads}" + RAW_ENDS[0] + "_un." + EXTENSION,
-            r2    = "2.TRIMMED/{raw_reads}" + RAW_ENDS[1] + "." + EXTENSION,
-            r2_un = "2.TRIMMED/{raw_reads}" + RAW_ENDS[1] + "_un." + EXTENSION
+            r1    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
+            r1_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "_un." + EXTENSION,
+            r2    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION,
+            r2_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "_un." + EXTENSION
         log:
             #"2.TRIMMED/{raw_reads}{raw_ends}.log"
             "2.TRIMMED/{raw_reads}.log"
@@ -136,9 +142,10 @@ else:
         input:
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
             reads   = READS + "/{raw_reads}." + EXTENSION
-            #reads = rules.reads.input.reads
         output:
             "2.TRIMMED/{raw_reads}." + EXTENSION
+        params:
+            options = TRIMMOMATIC_OPTIONS
         log:
             "2.TRIMMED/{raw_reads}.log"
         message:
@@ -146,7 +153,7 @@ else:
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic SE -threads {threads} {input.reads} {output} ILLUMINACLIP:{input.adapter}/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36 2> {log}"
+            "trimmomatic SE -threads {threads} {input.reads} {output} {params.options} 2> {log}"
 
 if PAIRED_END:
     rule fastqc_trimmed:
