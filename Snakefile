@@ -14,17 +14,11 @@ if PAIRED_END:
     ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
     FORWARD_READ_ID = [FORWARD_READ_ID]
-    MODE = ["paired","unpaired"]
-    MODE = ["","_un"]
-    #MODE = ["1","2"]
     REVERSE_READ_ID = [REVERSE_READ_ID]
     SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
-    MODE = [""]
-
 else:
     ENDS = []
     FORWARD_READ_ID = []
-    MODE = []
     REVERSE_READ_ID = []
     SUFFIX = "." + EXTENSION
 
@@ -65,14 +59,11 @@ rule all:
     input:
         expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
-        # expand("2.TRIMMED/{raw_reads2}{raw_ends2}.{format}",
-        #     raw_reads2 = LIBS, raw_ends2 = RAW_ENDS, format = EXTENSION),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
         expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
-        #READS + "/{raw_reads}_sorted.bam"
     output:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
@@ -174,10 +165,8 @@ else:
 rule hisat2_index:
     input:
         expand("GENOME/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES[1])
-        # primary_assembly = GENOME_FILENAMES[0]
     output:
         directory("GENOME/HISAT2_INDEX")
-    #    expand("GENOME/{hisat2}/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES)
     log:
         "hisat2_index.log"
     message:
