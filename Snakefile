@@ -61,8 +61,8 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
-        expand("6.COUNTS/counts.{format}", format = ["txt","matrix"]),
+        #expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
+        #expand("6.COUNTS/counts.{format}", format = ["txt","matrix"]),
         "doge_report.html"
     output:
         logs 	= directory("0.LOGS"),
@@ -72,7 +72,7 @@ rule all:
         shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d 2.TRIMMED")
         shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d 3.QC.TRIMMED")
         shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d 4.ALIGNMENT")
-        shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d 5.QC.ALIGNMENT")
+        #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d 5.QC.ALIGNMENT")
         shell("mkdir -p {output.logs} && mv *.log {output.logs}")
 
 rule fastqc_raw:
