@@ -27,7 +27,7 @@ def main(argv):
             if(not Path(GENOME_DIR + "/" + Path(i).stem).exists()):
                 process = subprocess.Popen("mkdir -p " + GENOME_DIR + " && mv " + i + " " + GENOME_DIR + " && yes n | gunzip " + GENOME_DIR + "/" + i + " && rm -rf " + GENOME_DIR + "/" + i, shell=True, stdout=subprocess.PIPE)
                 output, error = process.communicate()
-            print("Done")
+        print("Done")
     return 1
 
 main(sys.argv)
