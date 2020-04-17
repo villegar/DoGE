@@ -62,7 +62,8 @@ rule all:
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
-        expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
+        expand("6.COUNTS/counts.{format}", format = ["txt","matrix"]),
+        "doge_report.html"
     output:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
@@ -260,3 +261,22 @@ rule quantification_table:
     shell:
         "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | \
         sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
+
+rule annotation_table:
+    input:
+        gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0])
+    output:
+        "gene_annotation.txt"
+    shell:
+        "sed '/^[[:blank:]]*#/d;s/#.*//' {input.gtf} | awk '($3 == \'gene\')' | \
+        awk -F';' '$1=$1' OFS='\\t' > {output}"
+
+rule rmd_report:
+    input:
+        annotation = rules.annotation_table.output,
+        counts = rules.quantification_table.output,
+        experiment = "experiment_design.csv"
+    output:
+        "doge_report.html"
+    shell:
+        "rmarkdown::render('doge_report.Rmd')"
