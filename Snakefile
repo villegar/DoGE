@@ -60,7 +60,7 @@ rule all:
         expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
-            raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
+            raw_reads = LIBS, raw_ends = el(["_"],ENDS), format = ["html","zip"]),
         expand("4.ALIGNMENT/{raw_reads}_sorted.bam", raw_reads = LIBS),
         expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
         expand("6.COUNTS/counts.{format}", format = ["txt","matrix"])
@@ -93,14 +93,14 @@ rule fastqc_raw:
 if PAIRED_END:
     rule trim_reads:
         input:
-            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters")
-            r1      = READS + "/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
-            r2      = READS + "/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION
+            adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
+            r1      = READS + "/{raw_reads}_" + ENDS[0] + "." + EXTENSION,
+            r2      = READS + "/{raw_reads}_" + ENDS[1] + "." + EXTENSION
         output:
-            r1    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "." + EXTENSION,
-            r1_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[0] + "_un." + EXTENSION,
-            r2    = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "." + EXTENSION,
-            r2_un = "2.TRIMMED/{raw_reads}_" + RAW_ENDS[1] + "_un." + EXTENSION
+            r1    = "2.TRIMMED/{raw_reads}_" + ENDS[0] + "." + EXTENSION,
+            r1_un = "2.TRIMMED/{raw_reads}_" + ENDS[0] + "_un." + EXTENSION,
+            r2    = "2.TRIMMED/{raw_reads}_" + ENDS[1] + "." + EXTENSION,
+            r2_un = "2.TRIMMED/{raw_reads}_" + ENDS[1] + "_un." + EXTENSION
         params:
             options = TRIMMOMATIC_OPTIONS
         log:
