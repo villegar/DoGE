@@ -38,10 +38,10 @@ library(htmltools)
 ## MultiQC {.tabset .tabset-fade}
 ### FastQC
 ```{r}
-#htmltools::includeHTML("./10.MULTIQC/1.Report_FastQC_Raw.html")
+#htmltools::includeHTML("Report_FastQC_Raw.html")
 tags$iframe(
     title = "My embedded document", 
-    src = "./10.MULTIQC/1.Report_FastQC_Raw.html",
+    src = "Report_FastQC_Raw.html",
     width="100%", 
     height="400",
     seamless="seamless", 
@@ -52,7 +52,7 @@ tags$iframe(
 ```{r}
 htmltools::tags$iframe(
     title = "My embedded document", 
-    src = "./10.MULTIQC/2.Report_Trimming.html",
+    src = "Report_Trimming.html",
     width="100%", 
     height="400",
     seamless="seamless", 
@@ -63,7 +63,7 @@ htmltools::tags$iframe(
 ```{r}
 htmltools::tags$iframe(
     title = "My embedded document", 
-    src = "./10.MULTIQC/3.Report_FastQC_Trimmed.html",
+    src = "Report_FastQC_Trimmed.html",
     width="100%", 
     height="400",
     seamless="seamless", 
@@ -74,14 +74,14 @@ htmltools::tags$iframe(
 ```{r}
 htmltools::tags$iframe(
     title = "My embedded document", 
-    src = "./10.MULTIQC/4.Report_Alignment.html",
+    src = "Report_Alignment.html",
     width="100%", 
     height="400",
     seamless="seamless", 
     frameBorder="0")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 library("edgeR") # Loading installed edgeR libraries
 LFC <- 2
 
