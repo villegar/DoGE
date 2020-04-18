@@ -62,15 +62,18 @@ rule all:
         #expand(COUNTS + "counts.{format}", format = ["txt","matrix"]),
         RMD + "doge_report.html"
     output:
+        expand(RMD + "{ID}.Report_{step}.html", ID = [1,2,3,4],
+        step = ["FastQC_Raw","Trimming","FastQC_Trimmed","Alignment"])
+    params:
         logs 	= directory("0.LOGS"),
         reports	= directory(RMD)
     run:
-        shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
-        shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d " + TRIMMED_READS)
-        shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
-        shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d " + ALIGNMENT)
+        shell("multiqc -o {params.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
+        shell("multiqc -o {params.reports} -n 2.Report_Trimming.html -d " + TRIMMED_READS)
+        shell("multiqc -o {params.reports} -n 3.Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
+        shell("multiqc -o {params.reports} -n 4.Report_Alignment.html -d " + ALIGNMENT)
         #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d " + ALIGNMENT_QC)
-        shell("mkdir -p {output.logs} && mv *.log {output.logs}")
+        shell("mkdir -p {params.logs} && mv *.log {output.logs}")
 
 rule fastqc_raw:
     input:
