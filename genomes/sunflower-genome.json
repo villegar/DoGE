@@ -5,6 +5,6 @@
       "ftp://ftp.ensemblgenomes.org/pub/plants/release-46/fasta/helianthus_annuus/dna/Helianthus_annuus.HanXRQr1.0.dna_sm.toplevel.fa.gz",
   "Helianthus_annuus.HanXRQr1.0.dna_rm.toplevel.fa.gz":
       "ftp://ftp.ensemblgenomes.org/pub/plants/release-46/fasta/helianthus_annuus/dna/Helianthus_annuus.HanXRQr1.0.dna_rm.toplevel.fa.gz",
-  "Helianthus_annuus.HanXRQr1.0.46.gff3.gz":
-      "ftp://ftp.ensemblgenomes.org/pub/plants/release-46/gff3/helianthus_annuus/Helianthus_annuus.HanXRQr1.0.46.gff3.gz"
+  "Helianthus_annuus.HanXRQr1.0.46.gtf.gz":
+      "ftp://ftp.ensemblgenomes.org/pub/plants/release-46/gtf/helianthus_annuus/Helianthus_annuus.HanXRQr1.0.46.gtf.gz"
 }
