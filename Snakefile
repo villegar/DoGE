@@ -37,6 +37,7 @@ ADAPTER = which("trimmomatic")
 RAW_FASTQC = "1.QC.RAW/"
 TRIMMED_READS = "2.TRIMMED/"
 TRIMMED_READS_FASTQC = "3.QC.TRIMMED/"
+ALIGNMENT = "4.ALIGNMENT/"
 
 ####### Reference datasets #######
 GENOME = config["genome"]
@@ -175,9 +176,9 @@ if PAIRED_END:
             r1    = rules.trim_reads.output.r1,
             r2    = rules.trim_reads.output.r2,
         output:
-            "4.ALIGNMENT/{raw_reads}_sorted.sam"
+            ALIGNMENT + "{raw_reads}_sorted.sam"
         log:
-            "4.ALIGNMENT/{raw_reads}_sam.log"
+            ALIGNMENT + "{raw_reads}_sam.log"
         message:
             "Genome alignment"
         threads:
@@ -191,9 +192,9 @@ else:
             index = rules.hisat2_index.output,
             reads = rules.trim_reads.output
         output:
-            "4.ALIGNMENT/{raw_reads}_sorted.sam"
+            ALIGNMENT + "{raw_reads}_sorted.sam"
         log:
-            "4.ALIGNMENT/{raw_reads}_sam.log"
+            ALIGNMENT + "{raw_reads}_sam.log"
         message:
             "Genome alignment"
         threads:
@@ -205,9 +206,9 @@ rule sam2bam:
     input:
         rules.alignment.output
     output:
-        "4.ALIGNMENT/{raw_reads}_sorted.bam"
+        ALIGNMENT + "{raw_reads}_sorted.bam"
     log:
-        "4.ALIGNMENT/{raw_reads}_bam.log"
+        ALIGNMENT + "{raw_reads}_bam.log"
     message:
         "Converting SAM to BAM"
     threads:
@@ -230,7 +231,7 @@ rule alignment_quality:
 rule feature_counts:
     input:
         gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0]),
-        bam = el(["4.ALIGNMENT/"],el(LIBS,["_sorted.bam"]))
+        bam = el([ALIGNMENT],el(LIBS,["_sorted.bam"]))
     output:
         "6.COUNTS/counts.txt"
     threads:

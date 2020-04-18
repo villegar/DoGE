@@ -3,9 +3,9 @@ rule alignment:
         index = rules.hisat2_index.output,
         reads = rules.trim_reads.output
     output:
-        "4.ALIGNMENT/{raw_reads}_sorted.sam"
+        ALIGNMENT + "{raw_reads}_sorted.sam"
     log:
-        "4.ALIGNMENT/{raw_reads}_sam.log"
+        ALIGNMENT + "{raw_reads}_sam.log"
     message:
         "Genome alignment"
     threads:

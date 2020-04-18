@@ -4,9 +4,9 @@ rule alignment:
         r1    = rules.trim_reads.output.r1,
         r2    = rules.trim_reads.output.r2
     output:
-        "4.ALIGNMENT/{raw_reads}_sorted.sam"
+        ALIGNMENT + "{raw_reads}_sorted.sam"
     log:
-        "4.ALIGNMENT/{raw_reads}_sam.log"
+        ALIGNMENT + "{raw_reads}_sam.log"
     message:
         "Genome alignment"
     threads:
