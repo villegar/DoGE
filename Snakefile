@@ -230,7 +230,7 @@ rule alignment_quality:
     message:
         "Assessing alignment quality"
     shell:
-        "SAMstats --sorted_sam_file {input} --outf {output}"
+        "SAMstats --sorted_sam_file {input} --outf {output} 2> {log}"
 
 rule feature_counts:
     input:
