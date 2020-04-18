@@ -279,4 +279,5 @@ rule rmd_report:
     output:
         "7.RMD/doge_report.html"
     shell:
-        "Rscript -e \"rmarkdown::render(\'doge_report.Rmd\')\""
+        "Rscript -e \"rmarkdown::render(\'doge_report.Rmd\', \
+        output_dir=\'7.RMD\', clean = TRUE, quiet = TRUE)\""
