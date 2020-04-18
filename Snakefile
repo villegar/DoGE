@@ -274,7 +274,7 @@ rule rmd_report:
     input:
         annotation = rules.annotation_table.output,
         counts = rules.quantification_table.output,
-        experiment = RMD + "experiment_design.csv"
+        experiment = RMD + "exp_design.csv"
     output:
         RMD + "doge_report.html"
     shell:
