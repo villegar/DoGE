@@ -65,8 +65,8 @@ rule all:
         reports	= directory("10.MULTIQC")
     run:
         shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
-        shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d 2.TRIMMED")
-        shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d 3.QC.TRIMMED")
+        shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d " + TRIMMED_READS)
+        shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
         shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d 4.ALIGNMENT")
         #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d 5.QC.ALIGNMENT")
         shell("mkdir -p {output.logs} && mv *.log {output.logs}")
@@ -141,7 +141,7 @@ if PAIRED_END:
         threads:
             CPUS_FASTQC
         shell:
-            "fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}"
+            "fastqc -o " + TRIMMED_READS_FASTQC + " -t {threads} {input} 2> {log}"
 else:
     rule fastqc_trimmed:
         input:
@@ -156,7 +156,7 @@ else:
         threads:
             CPUS_FASTQC
         shell:
-            "fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}"
+            "fastqc -o " + TRIMMED_READS_FASTQC + " -t {threads} {input} 2> {log}"
 
 rule hisat2_index:
     input:

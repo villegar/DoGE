@@ -11,4 +11,4 @@ rule fastqc_trimmed:
     threads:
         CPUS_FASTQC
     shell:
-        "fastqc -o 3.QC.TRIMMED -t {threads} {input} 2> {log}"
+        "fastqc -o " + TRIMMED_READS_FASTQC + " -t {threads} {input} 2> {log}"
