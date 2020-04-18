@@ -67,8 +67,8 @@ rule all:
         shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
         shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d " + TRIMMED_READS)
         shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
-        shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d 4.ALIGNMENT")
-        #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d 5.QC.ALIGNMENT")
+        shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d " + ALIGNMENT)
+        #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d " + ALIGNMENT_QC)
         shell("mkdir -p {output.logs} && mv *.log {output.logs}")
 
 rule fastqc_raw:
@@ -240,7 +240,7 @@ rule feature_counts:
     threads:
         CPUS_READCOUNTS
     shell:
-        "mkdir -p 6.COUNTS && \
+        "mkdir -p " + COUNTS + " && \
         featureCounts -T {threads} -t exon -g gene_id -Q 30 -F GTF \
         -a {input.gtf} \
         -o {output} \
@@ -276,4 +276,4 @@ rule rmd_report:
         RMD + "doge_report.html"
     shell:
         "Rscript -e \"rmarkdown::render(\'doge_report.Rmd\', \
-        output_dir=\'7.RMD\', clean = TRUE, quiet = TRUE)\""
+        output_dir=\'" + RMD + "\', clean = TRUE, quiet = TRUE)\""
