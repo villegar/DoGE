@@ -33,6 +33,9 @@ CPUS_READCOUNTS = 20
 
 ADAPTER = which("trimmomatic")
 
+####### Output directories #######
+RAW_FASTQC = "1.QC.RAW/"
+
 ####### Reference datasets #######
 GENOME = config["genome"]
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
@@ -44,7 +47,7 @@ if PAIRED_END:
 ####### Rules #######
 rule all:
     input:
-        expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
+        expand(RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
@@ -66,12 +69,12 @@ rule fastqc_raw:
     input:
         reads = READS + "/{raw_reads}{raw_ends}." + EXTENSION
     output:
-        html = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.html",
-        zip  = "1.QC.RAW/{raw_reads}{raw_ends}_fastqc.zip"
+        html = RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.html",
+        zip  = RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.zip"
     message:
         "FastQC on raw data"
     log:
-        "1.QC.RAW/{raw_reads}{raw_ends}.log"
+        RAW_FASTQC + "{raw_reads}{raw_ends}.log"
     threads:
         CPUS_FASTQC
     run:
