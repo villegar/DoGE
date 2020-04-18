@@ -73,7 +73,7 @@ rule all:
         shell("multiqc -o {params.reports} -n 3.Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
         shell("multiqc -o {params.reports} -n 4.Report_Alignment.html -d " + ALIGNMENT)
         #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d " + ALIGNMENT_QC)
-        shell("mkdir -p {params.logs} && mv *.log {output.logs}")
+        shell("mkdir -p {params.logs} && mv *.log {params.logs}")
 
 rule fastqc_raw:
     input:
