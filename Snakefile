@@ -25,34 +25,21 @@ else:
 LIBS = findLibraries(READS,PREFIX,SUFFIX)
 
 ###### Multithread configuration #####
-CPUS_FASTQC = 3
-CPUS_PHIX = 15
+CPUS_FASTQC = 4
 CPUS_TRIMMING = 5
 CPUS_HISAT2_INDEX = 20
 CPUS_ALIGNMENT = 10
-CPUS_STAR = 20
-CPUS_ARIA = 16
-CPUS_KRAKEN = 20
-CPUS_READCOUNTS = 5
-CPUS_RNA = 20
+CPUS_READCOUNTS = 20
 
 ADAPTER = which("trimmomatic")
 
 ####### Reference datasets #######
 GENOME = config["genome"]
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
-#GENOME4STAR = config["genome4star"]
-#GENOME4STAR_FILENAMES = extractFilenames(GENOME4STAR.keys(),".gz")
-#GENOME4PHIX = config["genome4phiX"]
-#KRAKEN_DB = config["krakenDB"]
-#KRAKEN_DB_FILENAMES = extractFilenames(KRAKEN_DB.keys(),".tgz")
-#rRNA = config["rRNAref"]
-#rRNA_FILES = list(rRNA.keys())
 
 RAW_ENDS = [""]
 if PAIRED_END:
     RAW_ENDS = el(["_"],ENDS)
-    #RAW_ENDS = ENDS
 
 ####### Rules #######
 rule all:
@@ -242,7 +229,7 @@ rule feature_counts:
     output:
         "6.COUNTS/counts.txt"
     threads:
-        20
+        CPUS_READCOUNTS
     shell:
         "mkdir -p 6.COUNTS && \
         featureCounts -T {threads} -t exon -g gene_id -Q 30 -F GTF \
