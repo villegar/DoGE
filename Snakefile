@@ -77,8 +77,8 @@ rule fastqc_raw:
         RAW_FASTQC + "{raw_reads}{raw_ends}.log"
     threads:
         CPUS_FASTQC
-    run:
-        shell("fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}")
+    shell:
+        "fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}"
 
 if PAIRED_END:
     rule trim_reads:
