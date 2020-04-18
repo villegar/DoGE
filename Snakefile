@@ -63,7 +63,7 @@ rule all:
         RMD + "doge_report.html"
     output:
         logs 	= directory("0.LOGS"),
-        reports	= directory("10.MULTIQC")
+        reports	= directory(RMD)
     run:
         shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
         shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d " + TRIMMED_READS)
