@@ -268,7 +268,7 @@ rule annotation_table:
     output:
         "7.RMD/gene_annotation.txt"
     shell:
-        "sed '/^[[:blank:]]*#/d;s/#.*//' {input.gtf} | awk '($3 == \'gene\')' | \
+        "sed '/^[[:blank:]]*#/d;s/#.*//' {input.gtf} | awk '($3 == \"gene\")' | \
         awk -F';' '$1=$1' OFS='\\t' > {output}"
 
 rule rmd_report:
