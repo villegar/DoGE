@@ -38,6 +38,9 @@ RAW_FASTQC = "1.QC.RAW/"
 TRIMMED_READS = "2.TRIMMED/"
 TRIMMED_READS_FASTQC = "3.QC.TRIMMED/"
 ALIGNMENT = "4.ALIGNMENT/"
+ALIGNMENT_QC = "5.QC.ALIGNMENT/"
+COUNTS = "6.COUNTS/"
+RMD = "7.RMD/"
 
 ####### Reference datasets #######
 GENOME = config["genome"]
@@ -54,9 +57,9 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand(TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        #expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
-        #expand("6.COUNTS/counts.{format}", format = ["txt","matrix"]),
-        "7.RMD/doge_report.html"
+        #expand(ALIGNMENT_QC + "{raw_reads}_stats.txt", raw_reads = LIBS),
+        #expand(COUNTS + "counts.{format}", format = ["txt","matrix"]),
+        RMD + "doge_report.html"
     output:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
@@ -220,9 +223,9 @@ rule alignment_quality:
     input:
         rules.alignment.output
     output:
-        "5.QC.ALIGNMENT/{raw_reads}_stats.txt"
+        ALIGNMENT_QC + "{raw_reads}_stats.txt"
     log:
-        "5.QC.ALIGNMENT/{raw_reads}_stats.log"
+        ALIGNMENT_QC + "{raw_reads}_stats.log"
     message:
         "Assessing alignment quality"
     shell:
@@ -233,7 +236,7 @@ rule feature_counts:
         gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0]),
         bam = el([ALIGNMENT],el(LIBS,["_sorted.bam"]))
     output:
-        "6.COUNTS/counts.txt"
+        COUNTS + "counts.txt"
     threads:
         CPUS_READCOUNTS
     shell:
@@ -250,7 +253,7 @@ rule quantification_table:
         libs = "".join(el(["\\t"],LIBS)),
         cols = "1," + ",".join([str(i) for i in range(7, 7 + len(LIBS))])
     output:
-        "6.COUNTS/counts.matrix"
+        COUNTS + "counts.matrix"
     shell:
         "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | \
         sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
@@ -259,7 +262,7 @@ rule annotation_table:
     input:
         gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0])
     output:
-        "7.RMD/gene_annotation.txt"
+        RMD + "gene_annotation.txt"
     shell:
         "sed '/^[[:blank:]]*#/d;s/#.*//' {input.gtf} | awk '($3 == \"gene\")' | \
         awk -F';' '$1=$1' OFS='\\t' > {output}"
@@ -268,9 +271,9 @@ rule rmd_report:
     input:
         annotation = rules.annotation_table.output,
         counts = rules.quantification_table.output,
-        experiment = "7.RMD/experiment_design.csv"
+        experiment = RMD + "experiment_design.csv"
     output:
-        "7.RMD/doge_report.html"
+        RMD + "doge_report.html"
     shell:
         "Rscript -e \"rmarkdown::render(\'doge_report.Rmd\', \
         output_dir=\'7.RMD\', clean = TRUE, quiet = TRUE)\""
