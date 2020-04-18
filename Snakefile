@@ -34,6 +34,7 @@ CPUS_READCOUNTS = 20
 ADAPTER = which("trimmomatic")
 
 ####### Output directories #######
+REF_GENOME = "GENOME/"
 RAW_FASTQC = "1.QC.RAW/"
 TRIMMED_READS = "2.TRIMMED/"
 TRIMMED_READS_FASTQC = "3.QC.TRIMMED/"
@@ -160,9 +161,9 @@ else:
 
 rule hisat2_index:
     input:
-        expand("GENOME/{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES[1])
+        expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[1])
     output:
-        directory("GENOME/HISAT2_INDEX")
+        directory(REF_GENOME + "HISAT2_INDEX")
     log:
         "hisat2_index.log"
     message:
@@ -170,7 +171,7 @@ rule hisat2_index:
     threads:
         CPUS_HISAT2_INDEX
     shell:
-        "mkdir -p GENOME/HISAT2_INDEX && hisat2-build -p {threads} {input} {output}/idx 2> {log}"
+        "mkdir -p " + REF_GENOME + "HISAT2_INDEX && hisat2-build -p {threads} {input} {output}/idx 2> {log}"
 
 if PAIRED_END:
     rule alignment:
@@ -233,7 +234,7 @@ rule alignment_quality:
 
 rule feature_counts:
     input:
-        gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0]),
+        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[0]),
         bam = el([ALIGNMENT],el(LIBS,["_sorted.bam"]))
     output:
         COUNTS + "counts.txt"
@@ -260,7 +261,7 @@ rule quantification_table:
 
 rule annotation_table:
     input:
-        gtf = expand("GENOME/{file}", file = GENOME_FILENAMES[0])
+        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[0])
     output:
         RMD + "gene_annotation.txt"
     shell:
