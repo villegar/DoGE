@@ -30,27 +30,71 @@ library(pander)
 library(foreach)
 library(doParallel)
 library(tictoc)
+
+library(htmltools)
 ```
 
-install.packag
+
+## MultiQC {.tabset .tabset-fade}
+### FastQC
 ```{r}
-## try http:// if https:// URLs are not supported
-# BiocManager::install("edgeR") # Installing
+#htmltools::includeHTML("./10.MULTIQC/1.Report_FastQC_Raw.html")
+tags$iframe(
+    title = "My embedded document", 
+    src = "./10.MULTIQC/1.Report_FastQC_Raw.html",
+    width="100%", 
+    height="400",
+    seamless="seamless", 
+    frameBorder="0")
+```
+
+### Trimming
+```{r}
+htmltools::tags$iframe(
+    title = "My embedded document", 
+    src = "./10.MULTIQC/2.Report_Trimming.html",
+    width="100%", 
+    height="400",
+    seamless="seamless", 
+    frameBorder="0")
+```
+
+### Trimming (FastQC)
+```{r}
+htmltools::tags$iframe(
+    title = "My embedded document", 
+    src = "./10.MULTIQC/3.Report_FastQC_Trimmed.html",
+    width="100%", 
+    height="400",
+    seamless="seamless", 
+    frameBorder="0")
+```
+
+### Alignment
+```{r}
+htmltools::tags$iframe(
+    title = "My embedded document", 
+    src = "./10.MULTIQC/4.Report_Alignment.html",
+    width="100%", 
+    height="400",
+    seamless="seamless", 
+    frameBorder="0")
+```
+
+```{r, eval=FALSE}
 library("edgeR") # Loading installed edgeR libraries
 LFC <- 2
-
-## Ensemble GTF can be extracted 
-#gunzip Homo_sapiens.GRCh38.99.gtf.gz
 
 # sed '/^[[:blank:]]*#/d;s/#.*//' Homo_sapiens.GRCh38.99.gtf | awk '($3 == "gene")' | awk -F";" '$1=$1' OFS="\t" > Homo_sapiens.GRCh38.99_gene_annotation.txt 
 outpath <- paste0(getwd(),"/")
 
-mydesign <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/exp_design.csv", header=T, sep=",")
+mydesign <- read.table("7.RMD/exp_design.csv", header=T, sep=",")
 x <- read.table("6.COUNTS/counts.matrix", header=T, sep="\t", row.names=1)
+
 # get rid of rows with zero values
 x <- x[apply(x, 1, function(x) !all(x==0)),]
 
-dbs <- read.table("https://raw.githubusercontent.com/achalneupane/data/master/Homo_sapiens.GRCh38.87_gene_annotation.txt", header=FALSE, sep="\t")
+dbs <- read.table("7.RMD/gene_annotation.txt", header=FALSE, sep="\t")
 #head(dbs)
 dbs <- dbs[,c(9, 11, 13)]
 dbs <- sapply(dbs, function(x){gsub("gene_id|gene_name|gene_biotype| ", "", x)})
@@ -58,5 +102,4 @@ colnames(dbs) <- c("Geneid", "Gene", "Class")
 
 kable(head(dbs), booktabs = TRUE) %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position"))
-#outpath <- "/media/owner/36bc7216-7321-48cc-b3f4-18f05a9fe11c/RNA-seq_bio792/"
 ```
