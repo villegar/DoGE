@@ -35,6 +35,7 @@ ADAPTER = which("trimmomatic")
 
 ####### Output directories #######
 RAW_FASTQC = "1.QC.RAW/"
+TRIMMED_READS = "2.TRIMMED/"
 
 ####### Reference datasets #######
 GENOME = config["genome"]
@@ -87,14 +88,14 @@ if PAIRED_END:
             r1      = READS + "/{raw_reads}_" + ENDS[0] + "." + EXTENSION,
             r2      = READS + "/{raw_reads}_" + ENDS[1] + "." + EXTENSION
         output:
-            r1    = "2.TRIMMED/{raw_reads}_" + ENDS[0] + "." + EXTENSION,
-            r1_un = "2.TRIMMED/{raw_reads}_" + ENDS[0] + "_un." + EXTENSION,
-            r2    = "2.TRIMMED/{raw_reads}_" + ENDS[1] + "." + EXTENSION,
-            r2_un = "2.TRIMMED/{raw_reads}_" + ENDS[1] + "_un." + EXTENSION
+            r1    = TRIMMED_READS + "{raw_reads}_" + ENDS[0] + "." + EXTENSION,
+            r1_un = TRIMMED_READS + "{raw_reads}_" + ENDS[0] + "_un." + EXTENSION,
+            r2    = TRIMMED_READS + "{raw_reads}_" + ENDS[1] + "." + EXTENSION,
+            r2_un = TRIMMED_READS + "{raw_reads}_" + ENDS[1] + "_un." + EXTENSION
         params:
             options = TRIMMOMATIC_OPTIONS
         log:
-            "2.TRIMMED/{raw_reads}.log"
+            TRIMMED_READS + "{raw_reads}.log"
         message:
             "Using Paired End Trimming"
         threads:
@@ -109,11 +110,11 @@ else:
             adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
             reads   = READS + "/{raw_reads}." + EXTENSION
         output:
-            "2.TRIMMED/{raw_reads}." + EXTENSION
+            TRIMMED_READS + "{raw_reads}." + EXTENSION
         params:
             options = TRIMMOMATIC_OPTIONS
         log:
-            "2.TRIMMED/{raw_reads}.log"
+            TRIMMED_READS + "{raw_reads}.log"
         message:
             "Using Single End Trimming"
         threads:

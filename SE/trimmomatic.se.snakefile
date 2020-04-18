@@ -3,11 +3,11 @@ rule trim_reads:
         adapter = os.path.join(ADAPTER,"../share/trimmomatic/adapters"),
         reads   = READS + "/{raw_reads}." + EXTENSION
     output:
-        "2.TRIMMED/{raw_reads}." + EXTENSION
+        TRIMMED_READS + "{raw_reads}." + EXTENSION
     params:
         options = TRIMMOMATIC_OPTIONS
     log:
-        "2.TRIMMED/{raw_reads}.log"
+        TRIMMED_READS + "{raw_reads}.log"
     message:
         "Using Single End Trimming"
     threads:
