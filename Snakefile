@@ -57,7 +57,7 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand(TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        #expand(ALIGNMENT_QC + "{raw_reads}_stats.txt", raw_reads = LIBS),
+        expand(ALIGNMENT_QC + "{raw_reads}_stats.txt", raw_reads = LIBS),
         #expand(COUNTS + "counts.{format}", format = ["txt","matrix"]),
         RMD + "doge_report.html"
     output:
