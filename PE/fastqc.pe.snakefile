@@ -11,4 +11,4 @@ rule fastqc_raw:
     threads:
         CPUS_FASTQC
     run:
-        "fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}"
+        "fastqc -o " + RAW_FASTQC + " -t {threads} {input.reads} 2> {log}"

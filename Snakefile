@@ -64,7 +64,7 @@ rule all:
         logs 	= directory("0.LOGS"),
         reports	= directory("10.MULTIQC")
     run:
-        shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d 1.QC.RAW")
+        shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d " + RAW_FASTQC)
         shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d 2.TRIMMED")
         shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d 3.QC.TRIMMED")
         shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d 4.ALIGNMENT")
@@ -84,7 +84,7 @@ rule fastqc_raw:
     threads:
         CPUS_FASTQC
     shell:
-        "fastqc -o 1.QC.RAW -t {threads} {input.reads} 2> {log}"
+        "fastqc -o " + RAW_FASTQC + " -t {threads} {input.reads} 2> {log}"
 
 if PAIRED_END:
     rule trim_reads:
