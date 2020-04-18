@@ -36,6 +36,7 @@ ADAPTER = which("trimmomatic")
 ####### Output directories #######
 RAW_FASTQC = "1.QC.RAW/"
 TRIMMED_READS = "2.TRIMMED/"
+TRIMMED_READS_FASTQC = "3.QC.TRIMMED/"
 
 ####### Reference datasets #######
 GENOME = config["genome"]
@@ -50,7 +51,7 @@ rule all:
     input:
         expand(RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
+        expand(TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         #expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
         #expand("6.COUNTS/counts.{format}", format = ["txt","matrix"]),
@@ -127,12 +128,12 @@ if PAIRED_END:
         input:
             rules.trim_reads.output
         output:
-            html = "3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.html",
-            zip  = "3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.zip"
+            html = TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.html",
+            zip  = TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.zip"
         message:
             "FastQC on trimmed data"
         log:
-            "3.QC.TRIMMED/{raw_reads}{raw_ends}.log"
+            TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}.log"
         threads:
             CPUS_FASTQC
         shell:
@@ -142,12 +143,12 @@ else:
         input:
             rules.trim_reads.output
         output:
-            html = "3.QC.TRIMMED/{raw_reads}_fastqc.html",
-            zip  = "3.QC.TRIMMED/{raw_reads}_fastqc.zip"
+            html = TRIMMED_READS_FASTQC + "{raw_reads}_fastqc.html",
+            zip  = TRIMMED_READS_FASTQC + "{raw_reads}_fastqc.zip"
         message:
             "FastQC on trimmed data"
         log:
-            "3.QC.TRIMMED/{raw_reads}.log"
+            TRIMMED_READS_FASTQC + "{raw_reads}.log"
         threads:
             CPUS_FASTQC
         shell:

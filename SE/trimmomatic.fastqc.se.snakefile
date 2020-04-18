@@ -2,12 +2,12 @@ rule fastqc_trimmed:
     input:
         rules.trim_reads.output
     output:
-        html = "3.QC.TRIMMED/{raw_reads}_fastqc.html",
-        zip  = "3.QC.TRIMMED/{raw_reads}_fastqc.zip"
+        html = TRIMMED_READS_FASTQC + "{raw_reads}_fastqc.html",
+        zip  = TRIMMED_READS_FASTQC + "{raw_reads}_fastqc.zip"
     message:
         "FastQC on trimmed data"
     log:
-        "3.QC.TRIMMED/{raw_reads}.log"
+        TRIMMED_READS_FASTQC + "{raw_reads}.log"
     threads:
         CPUS_FASTQC
     shell:
