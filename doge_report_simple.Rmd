@@ -53,7 +53,7 @@ baseWD <- paste0(getwd(),"/")
 ```{r, echo=FALSE}
 tags$iframe(
     title = "FastQC report",
-    src = paste0(baseWD,"7.RMD/Report_FastQC_Raw.html"),
+    src = paste0(baseWD,"Report_FastQC_Raw.html"),
     width="100%",
     height="500",
     seamless="seamless",
@@ -64,7 +64,7 @@ tags$iframe(
 ```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "Trimmed reads report",
-    src = paste0(baseWD,"7.RMD/Report_Trimming.html"),
+    src = paste0(baseWD,"Report_Trimming.html"),
     width="100%",
     height="500",
     seamless="seamless",
@@ -75,7 +75,7 @@ htmltools::tags$iframe(
 ```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "FastQC for trimmed reads report",
-    src = paste0(baseWD,"7.RMD/Report_FastQC_Trimmed.html"),
+    src = paste0(baseWD,"Report_FastQC_Trimmed.html"),
     width="100%",
     height="500",
     seamless="seamless",
@@ -86,7 +86,7 @@ htmltools::tags$iframe(
 ```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "Alignment report",
-    src = paste0(baseWD,"7.RMD/Report_Alignment.html"),
+    src = paste0(baseWD,"Report_Alignment.html"),
     width="100%",
     height="500",
     seamless="seamless",
@@ -96,16 +96,16 @@ htmltools::tags$iframe(
 ## DESeq2 Analysis
 ### 1. Reading data
 
-First we read in counts data inside the `6.COUNTS/counts.matrix` file, the experimental design (`7.RMD/exp_design.csv`), and the gene annotation table (`7.RMD/gene_annotation.txt`).
+First we read in counts data inside the `counts.matrix` file, the experimental design (`exp_design.csv`), and the gene annotation table (`gene_annotation.txt`).
 ```{r, cache=TRUE}
-exp_design <- read.table(paste0(baseWD,"7.RMD/exp_design.csv"), header=T, sep=",")
-countData <- read.table(paste0(baseWD,"6.COUNTS/counts.matrix"), header=T, sep="\t", row.names=1)
+exp_design <- read.table(paste0(baseWD,"exp_design.csv"), header=T, sep=",")
+countData <- read.table(paste0(baseWD,"counts.matrix"), header=T, sep="\t", row.names=1)
 
 # get rid of rows with zero values
 countData <- countData[apply(countData, 1, function(countData) !all(countData==0)),]
 
 # Load annotation table
-dbs <- read.table(paste0(baseWD,"7.RMD/gene_annotation.txt"), header=FALSE, sep="\t")
+dbs <- read.table(paste0(baseWD,"gene_annotation.txt"), header=FALSE, sep="\t")
 
 dbs <- dbs[,c(9, 11, 13)]
 dbs <- sapply(dbs, function(x){gsub("gene_id|gene_name|gene_biotype| ", "", x)})
