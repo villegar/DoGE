@@ -24,7 +24,7 @@ urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=TRUE, cache = FALSE, fig.height=6, fig.width=12)
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=TRUE, cache = FALSE, fig.height=6, fig.width=11, out.width="100%")
 options(knitr.table.format = function() {
   if (knitr::is_latex_output())
     "latex" else "pandoc"
@@ -148,11 +148,11 @@ summary2kable(summary(countData), caption = "Summary for read counts")
 ```
 
 
-```{r, fig.width=10, fig.height=5, fig.fullwidth=TRUE}
+```{r barplot-cpm}
 barplot(colSums(countData)/1e6, col="#66BD63",las=1,main="Total read counts (millions)", ylab="Total reads in millions")
 ```
 
-```{r plot,  fig.width=10, fig.height=5, fig.fullwidth=TRUE}
+```{r hist-log2-lib1}
 transformation <- paste0("Log_2(",colnames(countData)[1],")")
 hist(log2(countData[,1]),br=200, xlab = TeX(transformation), col="#08519C",
      main = TeX(paste0("Histogram of ",transformation)))
