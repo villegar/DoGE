@@ -45,7 +45,7 @@ library(kableExtra)
 library(latex2exp)
 library(limma)
 
-baseWD <- paste0(getwd(),"/")
+baseWD <- "./" #paste0(getwd(),"/")
 ```
 
 ## MultiQC {.tabset .tabset-fade}
@@ -159,7 +159,7 @@ hist(log2(countData[,1]),br=200, xlab = TeX(transformation), col="#08519C",
 ```
 
 
-### 3. Further analysis 
+### 3. Further analysis
 Further analysis can be performed with the `doge_report.Rmd` file on RStudio. The following libraries are required:
 
 ```
@@ -168,8 +168,8 @@ library(knitr)
 library(kableExtra)
 library(htmltools)
 library(limma)
-library(DESeq2) 
-library(dplyr) 
+library(DESeq2)
+library(dplyr)
 library(latex2exp)
 library(RColorBrewer)
 library(gplots)

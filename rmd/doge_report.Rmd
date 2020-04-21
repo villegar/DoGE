@@ -51,7 +51,7 @@ library(gplots)
 library(calibrate)
 library(ggrepel)
 
-baseWD <- paste0(getwd(),"/")
+baseWD <- "./" #paste0(getwd(),"/")
 ```
 
 ## MultiQC {.tabset .tabset-fade}
