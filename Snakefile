@@ -60,7 +60,7 @@ rule all:
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
         expand(ALIGNMENT_QC + "{raw_reads}_stats.txt", raw_reads = LIBS),
         #expand(COUNTS + "counts.{format}", format = ["txt","matrix"]),
-        RMD + "doge_report.html"
+        RMD + "doge_report_simple.html"
     output:
         expand(RMD + "Report_{step}.html",
         step = ["FastQC_Raw","Trimming","FastQC_Trimmed","Alignment"])
@@ -68,11 +68,12 @@ rule all:
         logs 	= directory("0.LOGS"),
         reports	= directory(RMD)
     run:
-        shell("multiqc -o {params.reports} -n Report_FastQC_Raw.html -d " + RAW_FASTQC)
-        shell("multiqc -o {params.reports} -n Report_Trimming.html -d " + TRIMMED_READS)
-        shell("multiqc -o {params.reports} -n Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
-        shell("multiqc -o {params.reports} -n Report_Alignment.html -d " + ALIGNMENT)
+        shell("multiqc -f -o {params.reports} -n Report_FastQC_Raw.html -d " + RAW_FASTQC)
+        shell("multiqc -f -o {params.reports} -n Report_Trimming.html -d " + TRIMMED_READS)
+        shell("multiqc -f -o {params.reports} -n Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
+        shell("multiqc -f -o {params.reports} -n Report_Alignment.html -d " + ALIGNMENT)
         shell("mkdir -p {params.logs} && mv *.log {params.logs}")
+        shell("tar -zvcf 7.RMD.tar.gz 7.RMD")
 
 rule fastqc_raw:
     input:
@@ -276,7 +277,7 @@ rule rmd_report:
         counts = rules.quantification_table.output,
         experiment = RMD + "exp_design.csv"
     output:
-        RMD + "doge_report.html"
+        RMD + "doge_report_simple.html"
     shell:
-        "Rscript -e \"rmarkdown::render(\'doge_report.Rmd\', \
+        "Rscript -e \"rmarkdown::render(\'doge_report_simple.Rmd\', \
         output_dir=\'" + RMD + "\', clean = TRUE, quiet = TRUE)\""
