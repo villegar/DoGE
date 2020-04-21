@@ -1,0 +1,181 @@
+---
+# title: "DoGE: Differential Gene Expression pipeline
+#         <img src='images/logo.jpg' style='width: 100px; float: right' />"
+# author: "Roberto Villegas-Diaz"
+# title: "<center><div class='mytitle'>DoGE: Differential Gene Expression pipeline</div></center>"
+# author: "<center><div class='mysubtitle'>See the code on [github](https://github.com/villegar/DoGE).</div></center>"
+pagetitle: "DoGE: Differential Gene Expression pipeline"
+title: "<center>DoGE: Differential Gene Expression pipeline</center>"
+author: "<center>See the code on [github](https://github.com/villegar/DoGE).</center>"
+# title: "DoGE: Differential Gene Expression pipeline"
+# author: "See the code on [github](https://github.com/villegar/DoGE)."
+output:
+  html_document:
+    code_folding: "hide"
+    css: style.css
+    df_print: paged
+    includes:
+      before_body: header.html
+      after_body: footer.html
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message=FALSE, warning=FALSE, echo=TRUE, cache = FALSE, fig.height=6, fig.width=12)
+options(knitr.table.format = function() {
+  if (knitr::is_latex_output())
+    "latex" else "pandoc"
+})
+options(knitr.kable.NA = '')
+```
+
+<!-- <img src="images/logo.jpg" style="width: 150px; float: right; align: right; top:-30px; position: relative" /> -->
+
+<br><br>
+
+<div class="mycontent">
+```{r, echo=FALSE}
+# Import libraries
+library(htmltools)
+library(knitr)
+library(kableExtra)
+library(latex2exp)
+library(limma)
+
+baseWD <- paste0(getwd(),"/")
+```
+
+## MultiQC {.tabset .tabset-fade}
+### FastQC
+```{r, echo=FALSE}
+tags$iframe(
+    title = "FastQC report",
+    src = paste0(baseWD,"7.RMD/Report_FastQC_Raw.html"),
+    width="100%",
+    height="500",
+    seamless="seamless",
+    frameBorder="0")
+```
+
+### Trimming
+```{r, echo=FALSE}
+htmltools::tags$iframe(
+    title = "Trimmed reads report",
+    src = paste0(baseWD,"7.RMD/Report_Trimming.html"),
+    width="100%",
+    height="500",
+    seamless="seamless",
+    frameBorder="0")
+```
+
+### Trimming (FastQC)
+```{r, echo=FALSE}
+htmltools::tags$iframe(
+    title = "FastQC for trimmed reads report",
+    src = paste0(baseWD,"7.RMD/Report_FastQC_Trimmed.html"),
+    width="100%",
+    height="500",
+    seamless="seamless",
+    frameBorder="0")
+```
+
+### Alignment
+```{r, echo=FALSE}
+htmltools::tags$iframe(
+    title = "Alignment report",
+    src = paste0(baseWD,"7.RMD/Report_Alignment.html"),
+    width="100%",
+    height="500",
+    seamless="seamless",
+    frameBorder="0")
+```
+
+## DESeq2 Analysis
+### 1. Reading data
+
+First we read in counts data inside the `6.COUNTS/counts.matrix` file, the experimental design (`7.RMD/exp_design.csv`), and the gene annotation table (`7.RMD/gene_annotation.txt`).
+```{r, cache=TRUE}
+exp_design <- read.table(paste0(baseWD,"7.RMD/exp_design.csv"), header=T, sep=",")
+countData <- read.table(paste0(baseWD,"6.COUNTS/counts.matrix"), header=T, sep="\t", row.names=1)
+
+# get rid of rows with zero values
+countData <- countData[apply(countData, 1, function(countData) !all(countData==0)),]
+
+# Load annotation table
+dbs <- read.table(paste0(baseWD,"7.RMD/gene_annotation.txt"), header=FALSE, sep="\t")
+
+dbs <- dbs[,c(9, 11, 13)]
+dbs <- sapply(dbs, function(x){gsub("gene_id|gene_name|gene_biotype| ", "", x)})
+colnames(dbs) <- c("Geneid", "Gene", "Class")
+dbs <- data.frame(dbs)
+```
+
+
+```{r read_counts, echo=FALSE}
+kable(head(countData, 5), booktabs = TRUE, caption = "Top 5 genes read counts") %>%
+  kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
+```
+
+```{r exp_design, echo=FALSE}
+kable(exp_design, booktabs = TRUE, caption = "Experimental design") %>%
+  kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
+```
+
+```{r dbs, echo=FALSE}
+kable(head(dbs, 5), booktabs = TRUE, caption = "Top 5 genes in the annotation table") %>%
+  kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
+```
+
+
+### 2. Simple exploration of the raw data
+
+```{r, results='asis', echo=FALSE}
+summary2kable <- function(summary, caption){
+  tmp <- strsplit2(as.data.frame(summary)$Freq,":")
+  summary_cols <- unique(tmp[,1])
+  tmp <- matrix(as.numeric(tmp[,2]),ncol = length(summary_cols), byrow = T)
+  aux <- data.frame(tmp)
+  rownames(aux) <- colnames(summary)
+  colnames(aux) <- summary_cols
+  cat(kable(aux, booktabs = TRUE, caption = caption) %>%
+    kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down")))
+}
+
+summary2kable(summary(countData), caption = "Summary for read counts")
+```
+
+
+```{r, fig.width=10, fig.height=5}
+barplot(colSums(countData)/1e6, col="#66BD63",las=1,main="Total read counts (millions)", ylab="Total reads in millions")
+```
+
+```{r plot,  fig.width=10, fig.height=5}
+transformation <- paste0("Log_2(",colnames(countData)[1],")")
+hist(log2(countData[,1]),br=200, xlab = TeX(transformation), col="#08519C",
+     main = TeX(paste0("Histogram of ",transformation)))
+```
+
+
+### 3. Further analysis 
+Further analysis can be performed with the `doge_report.Rmd` file on RStudio. The following libraries are required:
+
+```
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(htmltools)
+library(limma)
+library(DESeq2) 
+library(dplyr) 
+library(latex2exp)
+library(RColorBrewer)
+library(gplots)
+library(calibrate)
+library(ggrepel)
+```
+
+<br><br><br>
+</div>

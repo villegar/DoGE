@@ -1,14 +1,26 @@
 ---
-title: "DoGE: Differential Gene Expression pipeline"
-author: "Roberto Villegas-Diaz"
+# title: "DoGE: Differential Gene Expression pipeline
+#         <img src='images/logo.jpg' style='width: 100px; float: right' />"
+# author: "Roberto Villegas-Diaz"
+pagetitle: "DoGE: Differential Gene Expression pipeline"
+title: "<center>DoGE: Differential Gene Expression pipeline</center>"
+author: "<center>See the code on [github](https://github.com/villegar/DoGE).</center>"
 output:
   html_document:
+    code_folding: "hide"
+    css: style.css
     df_print: paged
+    includes:
+      before_body: header.html
+      after_body: footer.html
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message=FALSE,warning=FALSE,echo=FALSE, cache = F,fig.height=6,fig.width=12)
+knitr::opts_chunk$set(message=FALSE,warning=FALSE,echo=TRUE, cache = F,fig.height=6,fig.width=12)
 options(knitr.table.format = function() {
   if (knitr::is_latex_output())
     "latex" else "pandoc"
@@ -16,16 +28,14 @@ options(knitr.table.format = function() {
 options(knitr.kable.NA = '')
 ```
 
-<img src="images/logo.jpg" style="width: 200px" />
+<br><br>
 
+<div class="mycontent">
 ```{r}
 # Import libraries
-# library(GGally)
 library(ggplot2)
-# library(gridExtra)
 library(knitr)
 library(kableExtra)
-# library(pander)
 
 # library(foreach)
 # library(doParallel)
@@ -46,7 +56,7 @@ baseWD <- paste0(getwd(),"/")
 
 ## MultiQC {.tabset .tabset-fade}
 ### FastQC
-```{r}
+```{r, echo=FALSE}
 #htmltools::includeHTML("Report_FastQC_Raw.html")
 tags$iframe(
     title = "FastQC report",
@@ -58,7 +68,7 @@ tags$iframe(
 ```
 
 ### Trimming
-```{r}
+```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "Trimmed reads report",
     src = paste0(baseWD,"Report_Trimming.html"),
@@ -69,7 +79,7 @@ htmltools::tags$iframe(
 ```
 
 ### Trimming (FastQC)
-```{r}
+```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "FastQC for trimmed reads report",
     src = paste0(baseWD,"Report_FastQC_Trimmed.html"),
@@ -80,7 +90,7 @@ htmltools::tags$iframe(
 ```
 
 ### Alignment
-```{r}
+```{r, echo=FALSE}
 htmltools::tags$iframe(
     title = "Alignment report",
     src = paste0(baseWD,"Report_Alignment.html"),
@@ -111,17 +121,17 @@ dbs <- data.frame(dbs)
 ```
 
 
-```{r read_counts}
+```{r read_counts, echo=FALSE}
 kable(head(countData, 5), booktabs = TRUE, caption = "Top 5 genes read counts") %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
 ```
 
-```{r exp_design}
+```{r exp_design, echo=FALSE}
 kable(exp_design, booktabs = TRUE, caption = "Experimental design") %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
 ```
 
-```{r dbs}
+```{r dbs, echo=FALSE}
 kable(head(dbs, 5), booktabs = TRUE, caption = "Top 5 genes in the annotation table") %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
 ```
@@ -129,7 +139,7 @@ kable(head(dbs, 5), booktabs = TRUE, caption = "Top 5 genes in the annotation ta
 
 ### 2. Simple exploration of the raw data
 
-```{r, results='asis'}
+```{r, results='asis', echo=FALSE}
 summary2kable <- function(summary, caption){
   tmp <- strsplit2(as.data.frame(summary)$Freq,":")
   summary_cols <- unique(tmp[,1])
@@ -229,7 +239,6 @@ kable(head(assay(vsd), 5), booktabs = TRUE) %>%
 dds <- estimateSizeFactors(dds)
 kable(t(sizeFactors(dds)), booktabs = TRUE) %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
-
 ```
 
 #### Started log on scaled data
@@ -351,3 +360,5 @@ mycolors <- brewer.pal(k,"YlGnBu")
 mycolors[1] <- "#D7191C"
 myheatmap2(x-apply(x,1,mean), bar,1000)
 ```
+<br><br><br>
+</div>
