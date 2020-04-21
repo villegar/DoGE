@@ -116,10 +116,10 @@ dbs <- data.frame(dbs)
 
 ```{r read_counts, echo=FALSE}
 kable(head(countData, 5), booktabs = TRUE, caption = "Top 5 genes read counts") %>%
-  kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
+  kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down")) %>% scroll_box(width = "100%")
 ```
 
-```{r exp_design, echo=FALSE}
+```{r exp_design, echo=FALSE, eval=FALSE}
 kable(exp_design, booktabs = TRUE, caption = "Experimental design") %>%
   kable_styling(latex_options = c("centered","striped","HOLD_position","scale_down"))
 ```
@@ -148,11 +148,11 @@ summary2kable(summary(countData), caption = "Summary for read counts")
 ```
 
 
-```{r, fig.width=10, fig.height=5}
+```{r, fig.width=10, fig.height=5, fig.fullwidth=TRUE}
 barplot(colSums(countData)/1e6, col="#66BD63",las=1,main="Total read counts (millions)", ylab="Total reads in millions")
 ```
 
-```{r plot,  fig.width=10, fig.height=5}
+```{r plot,  fig.width=10, fig.height=5, fig.fullwidth=TRUE}
 transformation <- paste0("Log_2(",colnames(countData)[1],")")
 hist(log2(countData[,1]),br=200, xlab = TeX(transformation), col="#08519C",
      main = TeX(paste0("Histogram of ",transformation)))
