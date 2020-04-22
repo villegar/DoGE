@@ -113,8 +113,8 @@ if PAIRED_END:
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic PE -threads {threads} {input.r1} {input.r2} \
-            {output} {params.options} 2> {log}"
+            "trimmomatic PE -threads {threads} {params.options} {input.r1} " +
+            "{input.r2} {output} 2> {log}"
 
 else:
     rule trim_reads:
@@ -132,7 +132,8 @@ else:
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic SE -threads {threads} {input.reads} {output} {params.options} 2> {log}"
+            "trimmomatic SE -threads {threads} {params.options} "+
+            "{input.reads} {output} 2> {log}"
 
 if PAIRED_END:
     rule fastqc_trimmed:
