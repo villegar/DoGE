@@ -1,5 +1,5 @@
 ####### Libraries #######
-from utils import extractFilenames, findLibraries, which
+from utils import extractFilenames, findLibraries, loadGenome, which
 from utils import expand_list as el
 
 ####### Global variables #######
@@ -44,7 +44,8 @@ COUNTS = "6.COUNTS/"
 RMD = "7.RMD/"
 
 ####### Reference datasets #######
-GENOME = json.load(config["genome"])
+GENOME = [loadGenome(config["genome"])]
+print(GENOME)
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 
 RAW_ENDS = [""]
