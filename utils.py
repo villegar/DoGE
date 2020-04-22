@@ -1,5 +1,6 @@
 ####### Libraries #######
 from itertools import product
+from pathlib import Path
 import glob
 import json
 import os
@@ -25,20 +26,18 @@ def findLibraries(path,prefix,suffix):
 
 def loadGenome(ref):
     if(not ref.endswith(".json")):
-        print("error: expecting file with .json format for the reference genome")
-        return -1
+        raise ValueError("expecting file with .json format for the reference genome")
     FA = None
     GTF = None
     with open(ref) as genome_data:
         data = json.load(genome_data)
         for i in data.keys():
             if(i.endswith(".fa.gz")):
-                FA = i
+                FA = Path(i).stem
             elif(i.endswith(".gtf.gz") or i.endswith(".gff3.gz")):
-                GTF = i
+                GTF = Path(i).stem
     if((FA is None) or (GTF is None)):
-        print("error: reference genome file wrongly formatted")
-        return -1,-1
+        raise ValueError("reference genome file wrongly formatted")
     return FA, GTF
 
 def which(file):
