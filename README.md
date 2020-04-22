@@ -107,28 +107,23 @@ bash run_cluster config.json &> log &
 ```
 
 #### Pipeline configuration (config.json)
+-	The `genome` section __MUST__ point to the path for the `X-genome.json` file.
+-	The `reads` section points the pipeline to the location (`path`), format (`extension`), type (`end_type`), and prefix (`prefix`) of the raw reads. Optionally, if `end_type = pe` (paired-end), both the forward (`forward_read_id`) and reverse (`reverse_read_id`) reads identifier (e.g. 1, R1, 2, R2, etc.) should be specified.
+-	The `trimmomatic` section should contain a sub-key called `options` with the parameters for trimming, excluding the input and ouput names, which will be set up by the pipeline.
+
 ```bash
 {
-    "genome":
-    {
-        "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz":
-            "ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
-        "Homo_sapiens.GRCh38.99.gtf.gz":
-            "ftp://ftp.ensembl.org/pub/release-99/gtf/homo_sapiens/Homo_sapiens.GRCh38.99.gtf.gz"
-    },
-
-    "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
+    "genome": "/path/to/X-genome.json",
     "reads": {
         "extension": "fastq",
         "end_type": "se",
         "forward_read_id": "1",
         "reverse_read_id": "2",
-        "path": "/gpfs/scratch/Classes/bio792/reads",
+        "path": "/path/to/raw/reads",
         "prefix": "SRR"
     },
-
     "trimmomatic":{
-      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:24"
+      "options": ""
     }
 }
 ```
@@ -137,4 +132,4 @@ bash run_cluster config.json &> log &
 # Study Case
 ## Data set
 For this study case the following article title [`LncRNA DEANR1 facilitates human endoderm differentiation by activating FOXA2 expression`](https://www.ncbi.nlm.nih.gov/gds/?term=(SRP019241)%20AND%20gds_sra[filter]
-) was consulted
+) was consulted.
