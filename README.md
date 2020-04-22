@@ -50,7 +50,7 @@ Table of Contents
 ```bash
 git clone https://github.com/villegar/doge
 cd doge
-conda env create -f environment.yml
+conda env create -f environment.yml -n DoGE
 conda activate DoGE or source activate DoGE
 python download.genome.py genomes/X-genome.json
 ```
@@ -123,7 +123,7 @@ bash run_cluster config.json &> log &
         "prefix": "SRR"
     },
     "trimmomatic":{
-      "options": ""
+      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads"
     }
 }
 ```
