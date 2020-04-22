@@ -1,6 +1,6 @@
 rule hisat2_index:
     input:
-        expand(REF_GENOME + "{file}", hisat2 = ["HISAT2_INDEX"], file = GENOME_FILENAMES["FA"])
+        expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["FA"])
     output:
         directory(REF_GENOME + "HISAT2_INDEX")
     log:
