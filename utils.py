@@ -38,7 +38,7 @@ def loadGenome(ref):
                 GTF = i
     if((FA is None) or (GTF is None)):
         print("error: reference genome file wrongly formatted")
-        return -1
+        return -1,-1
     return FA, GTF
 
 def which(file):
