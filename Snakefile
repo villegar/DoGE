@@ -1,5 +1,5 @@
 ####### Libraries #######
-from utils import extractFilenames, findLibraries, loadGenome, which
+from utils import extractFilenames, findLibraries, loadGenome, verifyGenome, which
 from utils import expand_list as el
 
 ####### Global variables #######
