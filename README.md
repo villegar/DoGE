@@ -4,6 +4,22 @@
 ## BIO792: Next Generation Sequencing Data Analysis
 ![Rule Graph](images/rule-graph.png?raw=true "Rule Graph")
 
+Table of Contents
+=================
+
+* [Requirements](#requirements)
+	* [R libraries:](#r-libraries)
+	* [Setup](#setup)
+	* [Genome file](#genome-file)
+* [Execution](#execution)
+	* [Single node](#single-node)
+	* [Multi-node](#multi-node)
+	* [Alternatively](#alternatively)
+	* [Cluster configuration (cluster.json)](#cluster-configuration-clusterjson)
+	* [Pipeline configuration (config.json)](#pipeline-configuration-configjson)
+* [Study Case](#study-case)
+	* [Data set](#data-set)
+	
 ## Requirements
 -	FastQC 0.11.9+
 -	FeatureCounts 2.0.0+
