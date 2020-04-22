@@ -31,12 +31,12 @@ def loadGenome(ref):
     GTF = None
     with open(ref) as genome_data:
         data = json.load(genome_data)
-        for i in data:
+        for i in data.keys():
             if(i.endswith(".fa.gz")):
                 FA = i
-            else if(i.endswith(".gtf.gz") || i.endswith(".gff3.gz")):
-                GFT = i
-    if((FA is None) || (GTF is None)):
+            else if(i.endswith(".gtf.gz") or i.endswith(".gff3.gz")):
+                GTF = i
+    if((FA is None) or (GTF is None)):
         print("error: reference genome file wrongly formatted")
         return -1
     return FA, GTF
