@@ -6,15 +6,16 @@ from utils import expand_list as el
 EXTENSION = config["reads"]["extension"]
 PREFIX = config["reads"]["prefix"]
 READS = config["reads"]["path"]
-FORWARD_READ_ID = config["reads"]["forward_read_id"]
-REVERSE_READ_ID = config["reads"]["reverse_read_id"]
 PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
-TRIMMOMATIC_OPTIONS = config["trimmomatic"]["options"]
+try:
+    TRIMMOMATIC_OPTIONS = config["trimmomatic"]["options"]
+except:
+    TRIMMOMATIC_OPTIONS = ""
 if PAIRED_END:
-    ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
+    FORWARD_READ_ID = [config["reads"]["forward_read_id"]]
+    REVERSE_READ_ID = [config["reads"]["reverse_read_id"]]
+    #ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
-    FORWARD_READ_ID = [FORWARD_READ_ID]
-    REVERSE_READ_ID = [REVERSE_READ_ID]
     SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
 else:
     ENDS = []
@@ -46,8 +47,7 @@ RMD = "7.RMD/"
 ####### Reference datasets #######
 FA,GTF = loadGenome(config["genome"])
 GENOME_FILENAMES = {"FA":FA,"GTF":GTF}
-print(GENOME_FILENAMES)
-#GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
+verifyGenome(config["genome"],REF_GENOME + FA, REF_GENOME + GTF)
 
 RAW_ENDS = [""]
 if PAIRED_END:
