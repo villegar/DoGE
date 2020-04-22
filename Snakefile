@@ -14,7 +14,6 @@ except:
 if PAIRED_END:
     FORWARD_READ_ID = [config["reads"]["forward_read_id"]]
     REVERSE_READ_ID = [config["reads"]["reverse_read_id"]]
-    #ENDS = el(["_"],[FORWARD_READ_ID,REVERSE_READ_ID])
     ENDS = [FORWARD_READ_ID,REVERSE_READ_ID]
     SUFFIX = "_" + FORWARD_READ_ID[0] + "." + EXTENSION
 else:
