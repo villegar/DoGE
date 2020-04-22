@@ -5,14 +5,30 @@
 ![Rule Graph](images/rule-graph.png?raw=true "Rule Graph")
 
 ## Requirements
--	Aria2c 1.34.0+
--	FastQC 0.11.8+
--	FeatureCounts 1.6.4+
+-	FastQC 0.11.9+
+-	FeatureCounts 2.0.0+
 -	MultiQC 1.7+
 -	Python 3.6+ (using [Ana](https://anaconda.org)([mini](https://docs.conda.io/en/latest/miniconda.html))conda)
--	Samtools 1.9+
+-	Samtools 1.3+
 -	Snakemake 5.7+
 -	SRA Toolkit 2.9.6+
+-	Trimmomatic 0.39+
+
+### R libraries:
+-	calibrate [http://cran.r-project.org/package=calibrate]
+-	DESeq2 [https://bioconductor.org/packages/3.10/bioc/html/DESeq2.html]
+-	dplyr [http://cran.r-project.org/package=dplyr]
+-	GGally [http://cran.r-project.org/package=GGally]
+-	ggplot2 [http://cran.r-project.org/package=ggplot2]
+-	ggrepel [http://cran.r-project.org/package=ggrepel]
+-	gplots [http://cran.r-project.org/package=gplots]
+-	gridExtra [http://cran.r-project.org/package=gridExtra]
+-	kableExtra [http://cran.r-project.org/package=kableExtra]
+- 	knitr [http://cran.r-project.org/package=knitr]
+-	latex2exp [http://cran.r-project.org/package=latex2exp]
+-	pander [http://cran.r-project.org/package=pander]
+-	RColorBrewer [http://cran.r-project.org/package=RColorBrewer]
+-	rmarkdown [http://cran.r-project.org/package=rmarkdown]
 
 ## Setup
 ```bash
@@ -20,7 +36,18 @@ git clone https://github.com/villegar/doge
 cd doge
 conda env create -f environment.yml
 conda activate DoGE or source activate DoGE
-python download.genome.py human-genome.json
+python download.genome.py genomes/X-genome.json
+```
+
+### Genome file
+A good place to get some reference genomes and gene annotations is http://uswest.ensembl.org/info/data/ftp/index.html. The reference must be stored in JSON format (see below template),`X-genome.json`
+```bash
+{
+	"X.fa.gz":
+            "ftp://ftp.ensembl.org/pub/some/path/to/X.fa.gz",
+        "X.gtf.gz":
+            "ftp://ftp.ensembl.org/pub/some/path/to/X.gtf.gz"
+}
 ```
 
 ## Execution
@@ -45,7 +72,7 @@ snakemake -j JOBS  \ # maximum number of simultaneous jobs to spawn
 ```
 #### Alternatively
 ```bash
-bash run_cluster &> log &
+bash run_cluster config.json &> log &
 ```
 
 #### Cluster configuration (cluster.json)
@@ -85,7 +112,13 @@ bash run_cluster &> log &
     },
 
     "trimmomatic":{
-      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36"
+      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:24"
     }
 }
 ```
+
+
+# Study Case
+## Data set
+For this study case the following article title [`LncRNA DEANR1 facilitates human endoderm differentiation by activating FOXA2 expression`](https://www.ncbi.nlm.nih.gov/gds/?term=(SRP019241)%20AND%20gds_sra[filter]
+) was consulted
