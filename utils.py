@@ -23,6 +23,24 @@ def findLibraries(path,prefix,suffix):
             names.append(library)
     return sorted(names)
 
+def loadGenome(ref):
+    if(not ref.endswith(".json")):
+        print("error: expecting file with .json format for the reference genome")
+        return -1
+    FA = None
+    GTF = None
+    with open(ref) as genome_data:
+        data = json.load(genome_data)
+        for i in data:
+            if(i.endswith(".fa.gz")):
+                FA = i
+            else if(i.endswith(".gtf.gz") || i.endswith(".gff3.gz")):
+                GFT = i
+    if((FA is None) || (GTF is None)):
+        print("error: reference genome file wrongly formatted")
+        return -1
+    return FA, GTF
+
 def which(file):
     for path in os.environ["PATH"].split(os.pathsep):
         if os.path.exists(os.path.join(path, file)):
