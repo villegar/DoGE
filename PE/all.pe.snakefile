@@ -1,18 +1,18 @@
 rule all:
     input:
-        expand("1.QC.RAW/{raw_reads}{raw_ends}_fastqc.{format}",
+        expand(RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        expand("3.QC.TRIMMED/{raw_reads}{raw_ends}_fastqc.{format}",
+        expand(TRIMMED_READS_FASTQC + "{raw_reads}{raw_ends}_fastqc.{format}",
             raw_reads = LIBS, raw_ends = RAW_ENDS, format = ["html","zip"]),
-        expand("5.QC.ALIGNMENT/{raw_reads}_stats.txt", raw_reads = LIBS),
-        "7.RMD/doge_report.html"
+        expand(ALIGNMENT_QC + "{raw_reads}_stats.txt", raw_reads = LIBS),
+        RMD + "doge_report_simple.html"
     output:
-        logs 	= directory("0.LOGS"),
-        reports	= directory("10.MULTIQC")
+        expand(RMD + "Report_{step}.html",
+        step = ["FastQC_Raw","Trimming","FastQC_Trimmed","Alignment"])
     run:
-        shell("multiqc -o {output.reports} -n 1.Report_FastQC_Raw.html -d 1.QC.RAW")
-        shell("multiqc -o {output.reports} -n 2.Report_Trimming.html -d 2.TRIMMED")
-        shell("multiqc -o {output.reports} -n 3.Report_FastQC_Trimmed.html -d 3.QC.TRIMMED")
-        shell("multiqc -o {output.reports} -n 4.Report_Alignment.html -d 4.ALIGNMENT")
-        #shell("multiqc -o {output.reports} -n 5.Report_AlignmentQC.html -d 5.QC.ALIGNMENT")
-        shell("mkdir -p {output.logs} && mv *.log {output.logs}")
+        shell("multiqc -f -o {params.reports} -n Report_FastQC_Raw.html -d " + RAW_FASTQC)
+        shell("multiqc -f -o {params.reports} -n Report_Trimming.html -d " + TRIMMED_READS)
+        shell("multiqc -f -o {params.reports} -n Report_FastQC_Trimmed.html -d " + TRIMMED_READS_FASTQC)
+        shell("multiqc -f -o {params.reports} -n Report_Alignment.html -d " + ALIGNMENT)
+        shell("mkdir -p {params.logs} && mv *.log {params.logs}")
+        shell("tar -zvcf 7.RMD.tar.gz 7.RMD")
