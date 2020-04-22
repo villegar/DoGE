@@ -44,7 +44,7 @@ COUNTS = "6.COUNTS/"
 RMD = "7.RMD/"
 
 ####### Reference datasets #######
-GENOME = config["genome"]
+GENOME = json.load(config["genome"])
 GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 
 RAW_ENDS = [""]
