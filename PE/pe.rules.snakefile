@@ -1,0 +1,5 @@
+include:"./all.pe.snakefile"
+include:"./fastqc.pe.snakefile"
+include:"./hisat2.alignment.pe.snakefile"
+include:"./trimmomatic.pe.snakefile"
+include:"./trimmomatic.fastqc.pe.snakefile"
