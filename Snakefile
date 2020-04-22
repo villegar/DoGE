@@ -44,9 +44,10 @@ COUNTS = "6.COUNTS/"
 RMD = "7.RMD/"
 
 ####### Reference datasets #######
-GENOME = [loadGenome(config["genome"])]
-print(GENOME)
-GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
+FA,GTF = [loadGenome(config["genome"])]
+GENOME_FILENAMES = [FA,GTF]
+print(GENOME_FILENAMES)
+#GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 
 RAW_ENDS = [""]
 if PAIRED_END:
