@@ -1,22 +1,11 @@
 {
-    "genome":
-    {
-        "Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz":
-            "ftp://ftp.ensembl.org/pub/release-99/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
-        "Homo_sapiens.GRCh38.99.gtf.gz":
-            "ftp://ftp.ensembl.org/pub/release-99/gtf/homo_sapiens/Homo_sapiens.GRCh38.99.gtf.gz"
-    },
-
-    "_comment": "Below READS section shows the configuration for a directory containing reads in the format: /{PATH}/SRR{LIBRARY}_1.fastq",
+    "genome": "genomes/human-genome.json",
     "reads": {
         "extension": "fastq",
         "end_type": "se",
-        "forward_read_id": "1",
-        "reverse_read_id": "2",
         "path": "/gpfs/scratch/Classes/bio792/reads",
         "prefix": "SRR"
     },
-
     "trimmomatic":{
       "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads SLIDINGWINDOW:4:20 TRAILING:3 MINLEN:36"
     }
