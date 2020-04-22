@@ -20,7 +20,7 @@ def main(argv):
         for i in data:
             print("Downloading %s" % (i))
             if(not Path(GENOME_DIR + "/" + Path(i).stem).exists()):
-                process = subprocess.Popen("aria2c -x " + CPUS + " -s " + CPUS + " " + data[i], shell=True, stdout=subprocess.PIPE)
+                process = subprocess.Popen("curl " + data[i] + " -O", shell=True, stdout=subprocess.PIPE)
                 output, error = process.communicate()
             else:
                 print("File already downloaded")
