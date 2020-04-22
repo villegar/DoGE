@@ -22,6 +22,8 @@ def findLibraries(path,prefix,suffix):
         library = os.path.basename(file).split(suffix)[0]
         if(library not in names):
             names.append(library)
+    if(len(names) == 0):
+        raise ValueError("No raw reads were found at " + path)
     return sorted(names)
 
 def loadGenome(ref):
@@ -58,7 +60,7 @@ def verifyGenome(ref,fa,gtf):
     elif(not existsGTF):
         raise ValueError("the gene annotation file doesn't exist\n"+
         "please run the following command: \n\tpython download.genome.py " + ref)
-        
+
 def which(file):
     for path in os.environ["PATH"].split(os.pathsep):
         if os.path.exists(os.path.join(path, file)):
