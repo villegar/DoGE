@@ -10,7 +10,7 @@ PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
 try:
     TRIMMOMATIC_OPTIONS = config["trimmomatic"]["options"]
 except:
-    raise ValueError("trimmomatic > options not found in the configurati file")
+    raise ValueError("trimmomatic > options not found in the configuration file")
 if PAIRED_END:
     FORWARD_READ_ID = [config["reads"]["forward_read_id"]]
     REVERSE_READ_ID = [config["reads"]["reverse_read_id"]]
@@ -112,8 +112,8 @@ if PAIRED_END:
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic PE -threads {threads} {params.options} {input.r1} " +
-            "{input.r2} {output} 2> {log}"
+            "trimmomatic PE -threads {threads} {input.r1} {input.r2} " +
+            "{output} {params.options} 2> {log}"
 
 else:
     rule trim_reads:
@@ -131,8 +131,8 @@ else:
         threads:
             CPUS_TRIMMING
         shell:
-            "trimmomatic SE -threads {threads} {params.options} "+
-            "{input.reads} {output} 2> {log}"
+            "trimmomatic SE -threads {threads} {input.reads} {output} " +
+            "{params.options} 2> {log}"
 
 if PAIRED_END:
     rule fastqc_trimmed:

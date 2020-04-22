@@ -13,5 +13,5 @@ rule trim_reads:
     threads:
         CPUS_TRIMMING
     shell:
-        "trimmomatic SE -threads {threads} {params.options} " +
-        "{input.reads} {output} 2> {log}"
+        "trimmomatic SE -threads {threads} {input.reads} {output} " +
+        "{params.options} 2> {log}"

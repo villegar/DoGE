@@ -17,5 +17,5 @@ rule trim_reads:
     threads:
         CPUS_TRIMMING
     shell:
-        "trimmomatic PE -threads {threads} {params.options} {input.r1} "+
-        "{input.r2} {output}  2> {log}"
+        "trimmomatic PE -threads {threads} {input.r1} {input.r2} " +
+        "{output} {params.options} 2> {log}"
