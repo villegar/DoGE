@@ -44,8 +44,11 @@ COUNTS = "6.COUNTS/"
 RMD = "7.RMD/"
 
 ####### Reference datasets #######
-FA,GTF = [loadGenome(config["genome"])]
-GENOME_FILENAMES = [FA,GTF]
+FA,GTF = loadGenome(config["genome"])
+if(FA == -1):
+    print("error: reference genome file wrongly formatted")
+    return FA
+GENOME_FILENAMES = {"FA":FA,"GTF":GTF}
 print(GENOME_FILENAMES)
 #GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
 
@@ -166,7 +169,7 @@ else:
 
 rule hisat2_index:
     input:
-        expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[1])
+        expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["FA"])
     output:
         directory(REF_GENOME + "HISAT2_INDEX")
     log:
@@ -239,7 +242,7 @@ rule alignment_quality:
 
 rule feature_counts:
     input:
-        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[0]),
+        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["FA"]),
         bam = el([ALIGNMENT],el(LIBS,["_sorted.bam"]))
     output:
         COUNTS + "counts.txt"
@@ -266,7 +269,7 @@ rule quantification_table:
 
 rule annotation_table:
     input:
-        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES[0])
+        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["GTF"])
     output:
         RMD + "gene_annotation.txt"
     shell:
