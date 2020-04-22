@@ -55,113 +55,21 @@ if PAIRED_END:
 
 ####### Rules #######
 if PAIRED_END:
-    include:"./PE/all.pe.snakefile"
+    include: "PE/all.pe.snakefile"
+    include: "PE/fastqc.pe.snakefile"
+    include: "PE/trimmomatic.pe.snakefile"
+    include: "PE/trimmomatic.fastqc.pe.snakefile"
+    include: "PE/hisat2.alignment.pe.snakefile"
 else:
-    include:"./SE/all.se.snakefile"
+    include: "SE/all.se.snakefile"
+    include: "SE/fastqc.se.snakefile"
+    include: "SE/trimmomatic.se.snakefile"
+    include: "SE/trimmomatic.fastqc.se.snakefile"
+    include: "SE/hisat2.alignment.se.snakefile"
 
-rule fastqc_raw:
-    input:
-        reads = READS + "/{raw_reads}{raw_ends}." + EXTENSION
-    output:
-        html = RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.html",
-        zip  = RAW_FASTQC + "{raw_reads}{raw_ends}_fastqc.zip"
-    message:
-        "FastQC on raw data"
-    log:
-        RAW_FASTQC + "{raw_reads}{raw_ends}.log"
-    threads:
-        CPUS_FASTQC
-    shell:
-        "fastqc -o " + RAW_FASTQC + " -t {threads} {input.reads} 2> {log}"
-
-
-rule hisat2_index:
-    input:
-        expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["FA"])
-    output:
-        directory(REF_GENOME + "HISAT2_INDEX")
-    log:
-        "hisat2_index.log"
-    message:
-        "Creating HISAT2 index"
-    threads:
-        CPUS_HISAT2_INDEX
-    shell:
-        "mkdir -p " + REF_GENOME + "HISAT2_INDEX && hisat2-build -p {threads} {input} {output}/idx 2> {log}"
-
-rule sam2bam:
-    input:
-        rules.alignment.output
-    output:
-        ALIGNMENT + "{raw_reads}_sorted.bam"
-    log:
-        ALIGNMENT + "{raw_reads}_bam.log"
-    message:
-        "Converting SAM to BAM"
-    threads:
-        CPUS_ALIGNMENT
-    shell:
-        "samtools view -@ {threads} -bS {input} | samtools sort -@ {threads} -o {output} 2> {log}"
-
-rule alignment_quality:
-    input:
-        rules.alignment.output
-    output:
-        ALIGNMENT_QC + "{raw_reads}_stats.txt"
-    log:
-        ALIGNMENT_QC + "{raw_reads}_stats.log"
-    message:
-        "Assessing alignment quality"
-    shell:
-        "SAMstats --sorted_sam_file {input} --outf {output} 2> {log}"
-
-rule feature_counts:
-    input:
-        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["GTF"]),
-        bam = el([ALIGNMENT],el(LIBS,["_sorted.bam"]))
-    output:
-        COUNTS + "counts.txt"
-    threads:
-        CPUS_READCOUNTS
-    shell:
-        "mkdir -p " + COUNTS + " && \
-        featureCounts -T {threads} -t exon -g gene_id -Q 30 -F GTF \
-        -a {input.gtf} \
-        -o {output} \
-        {input.bam}"
-
-rule quantification_table:
-    input:
-        counts = rules.feature_counts.output
-    params:
-        libs = "".join(el(["\\t"],LIBS)),
-        cols = "1," + ",".join([str(i) for i in range(7, 7 + len(LIBS))])
-    output:
-        COUNTS + "counts.matrix"
-    shell:
-        "cat {input.counts} | grep -v '^#' | cut -f {params.cols} | \
-        sed '1d' | sed '1i\Geneid{params.libs}' > {output}"
-
-rule annotation_table:
-    input:
-        gtf = expand(REF_GENOME + "{file}", file = GENOME_FILENAMES["GTF"])
-    output:
-        RMD + "gene_annotation.txt"
-    shell:
-        "sed '/^[[:blank:]]*#/d;s/#.*//' {input.gtf} | awk '($3 == \"gene\")' | \
-        awk -F';' '$1=$1' OFS='\\t' > {output}"
-
-rule rmd_report:
-    input:
-        annotation = rules.annotation_table.output,
-        counts = rules.quantification_table.output,
-        experiment = "exp_design.csv"
-    output:
-        RMD + "doge_report_simple.html"
-    shell:
-        "cp html/* rmd/* " + RMD + " && " +
-        "cp {input.counts} " + RMD + " && " +
-        "cp {input.experiment} " + RMD + " && cd " + RMD + " && " +
-        "Rscript -e \"rmarkdown::render(\'doge_report_simple.Rmd\'," +
-        "output_dir=\'.\', clean = TRUE, quiet = TRUE)\" && " +
-        "cd ../"
+include: "rules/hisat2.index.snakefile"
+include: "rules/sam2bam.snakefile"
+include: "rules/alignment.quality.snakefile"
+include: "rules/quantification.table.snakefile"
+include: "rules/annotation.table.snakefile"
+include: "rules/rmd.report.snakefile"
