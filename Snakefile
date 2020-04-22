@@ -45,9 +45,6 @@ RMD = "7.RMD/"
 
 ####### Reference datasets #######
 FA,GTF = loadGenome(config["genome"])
-if(FA == -1):
-    print("error: reference genome file wrongly formatted")
-    return FA
 GENOME_FILENAMES = {"FA":FA,"GTF":GTF}
 print(GENOME_FILENAMES)
 #GENOME_FILENAMES = extractFilenames(GENOME.keys(),".gz")
