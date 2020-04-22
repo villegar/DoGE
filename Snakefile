@@ -10,8 +10,7 @@ PAIRED_END = [True if config["reads"]["end_type"] == "pe" else False][0]
 try:
     TRIMMOMATIC_OPTIONS = config["trimmomatic"]["options"]
 except:
-    print("Using default -phred33 for trimming")
-    TRIMMOMATIC_OPTIONS = "-phred33"
+    raise ValueError("trimmomatic > options not found in the configurati file")
 if PAIRED_END:
     FORWARD_READ_ID = [config["reads"]["forward_read_id"]]
     REVERSE_READ_ID = [config["reads"]["reverse_read_id"]]
