@@ -50,7 +50,7 @@ Table of Contents
 ```bash
 git clone https://github.com/villegar/doge
 cd doge
-conda env create -f environment.yml
+conda env create -f environment.yml -n DoGE
 conda activate DoGE or source activate DoGE
 python download.genome.py genomes/X-genome.json
 ```
@@ -123,7 +123,7 @@ bash run_cluster config.json &> log &
         "prefix": "SRR"
     },
     "trimmomatic":{
-      "options": ""
+      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads"
     }
 }
 ```
@@ -133,3 +133,64 @@ bash run_cluster config.json &> log &
 ## Data set
 For this study case the following article title [`LncRNA DEANR1 facilitates human endoderm differentiation by activating FOXA2 expression`](https://www.ncbi.nlm.nih.gov/gds/?term=(SRP019241)%20AND%20gds_sra[filter]
 ) was consulted.
+https://doi.org/10.1016/j.celrep.2015.03.008
+
+### Accession numbers
+```
+SRR1958165
+SRR1958166
+SRR1958167
+SRR1958168
+SRR1958169
+SRR1958170
+```
+
+### Configuration file
+```
+{
+    "genome": "genomes/human-genome.json",
+    "reads": {
+        "extension": "fastq",
+        "end_type": "se",
+        "path": "/path/to/reads",
+        "prefix": "SRR"
+    },
+    "trimmomatic":{
+      "options": "ILLUMINACLIP:{input.adapter}/TruSeq3-SE-2.fa:2:30:10:2:keepBothReads TRAILING:3 MINLEN:24"
+    }
+}
+```
+
+## Execution
+It is a good practice to perform a `dry-run` of the workflow before submitting for execution. This can be done by appending the `-n` option to the `snakemake` command:
+
+```
+snakemake --configfile config.json -n
+```
+
+The output will display a summary of each job that will be processed and a final summary that should look like:
+```
+Job counts:
+        count   jobs
+        6       alignment
+        6       alignment_quality
+        1       all
+        1       annotation_table
+        6       fastqc_raw
+        6       fastqc_trimmed
+        1       feature_counts
+        1       hisat2_index
+        1       quantification_table
+        1       rmd_report
+        6       sam2bam
+        6       trim_reads
+        42
+```
+
+For a graphical summary of above jobs, check the directed acyciclic graph: https://raw.githubusercontent.com/villegar/DoGE/master/images/dag.png
+
+### Single node execution
+```
+snakemake -j CPUS \ # maximum number of CPUs available to Snakemake
+	  --configfile config.json # configuration file
+```
