@@ -1,7 +1,12 @@
-# D<sub>o</sub>GE: Differential Gene Expression Analysis Pipeline <img src="images/logo.jpg" alt="doge-log" align="right" height=200px/>
+# D<sub>o</sub>GE: Differential Gene Expression Analysis Pipeline <img src="images/logo.jpg" alt="doge-log" align="right" height=150px/>
  
 ## BIO792: Next Generation Sequencing Data Analysis
-![Rule Graph](images/rule-graph.png?raw=true "Rule Graph")
+<p align="center">
+	<a href="https://raw.githubusercontent.com/villegar/DoGE/master/images/rule-graph.png">
+		<img src=images/rule-graph.png width=500px />
+	</a>
+</p>
+
 
 Table of Contents
 =================
