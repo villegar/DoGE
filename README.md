@@ -19,6 +19,7 @@ Table of Contents
 	* [Pipeline configuration (config.json)](#pipeline-configuration-configjson)
 * [Study Case](#study-case)
 	* [Data set](#data-set)
+	* [Execution](#execution)
 	
 ## Requirements
 -	FastQC 0.11.9+
