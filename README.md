@@ -1,4 +1,4 @@
-# D<sub>o</sub>GE: Differential Gene Expression Analysis Pipeline <img src="images/logo.jpg" alt="doge-log" align="right" height=150px/>
+# D<sub>o</sub>GE: Differential Gene Expression Analysis Pipeline <img src="https://raw.githubusercontent.com/villegar/DoGE/master/images/logo.png" alt="logo" align="right" height=200px/>
  
 ## BIO792: Next Generation Sequencing Data Analysis
 <p align="center">
